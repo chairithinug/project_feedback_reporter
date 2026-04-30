@@ -2343,16 +2343,26 @@
         function deleteScreenshotFromForm(type, context) {
             const isDesignRef = type === 'designRef';
             const prefix = context === 'edit' ? 'edit' : '';
-            const varName = `${prefix}${isDesignRef ? 'DesignRef' : 'Screenshot'}`;
-            const inputId = `${prefix}${isDesignRef ? 'DesignRef' : 'Screenshot'}Input`;
-            const previewId = `${prefix}${isDesignRef ? 'DesignRef' : 'Screenshot'}Preview`;
+            // Note: Main form IDs are lowercase (screenshotInput, designRefInput)
+            // Edit modal IDs have 'edit' prefix (editScreenshotInput, editDesignRefInput)
+            const inputId = prefix + (isDesignRef ? 'designRefInput' : 'screenshotInput');
+            const previewId = prefix + (isDesignRef ? 'designRefPreview' : 'screenshotPreview');
 
             showConfirm(
                 `This will remove the ${isDesignRef ? 'design reference' : 'screenshot'} from the form.`,
                 `Delete ${isDesignRef ? 'Design Reference' : 'Screenshot'}?`,
                 'Delete',
                 () => {
-                    window[varName] = null;
+                    // Clear the appropriate variable based on context and type
+                    if (context === 'edit' && isDesignRef) {
+                        editDesignRef = null;
+                    } else if (context === 'edit') {
+                        editScreenshot = null;
+                    } else if (isDesignRef) {
+                        currentDesignRef = null;
+                    } else {
+                        currentScreenshot = null;
+                    }
                     document.getElementById(inputId).value = '';
                     document.getElementById(previewId).innerHTML = '';
                 }
