@@ -53,7 +53,7 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.08);
             padding: 18px;
             overflow-y: auto;
-            gap: 18px;
+            gap: 12px;
         }
 
         .right-panel::-webkit-scrollbar {
@@ -67,7 +67,7 @@
 
         .items-section-right {
             border-bottom: 1px solid #f0f0f0;
-            padding-bottom: 16px;
+            padding-bottom: 12px;
         }
 
         .collapsible-header {
@@ -110,13 +110,13 @@
         .items-content {
             max-height: 500px;
             overflow-y: auto;
-            transition: max-height 0.3s ease-out;
+            transition: max-height 0.15s ease-out;
         }
 
         .items-content.collapsed {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-in;
+            transition: max-height 0.15s ease-in;
         }
 
         #itemsList {
@@ -186,7 +186,7 @@
             text-align: center;
             background: #f9f9f9;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.15s;
             min-height: 110px;
             display: flex;
             flex-direction: column;
@@ -198,6 +198,7 @@
         .drop-zone:hover {
             background: #f0f0f0;
             border-color: #0052a3;
+            transition: all 0.15s;
         }
 
         .drop-zone.drag-over {
@@ -302,13 +303,13 @@
         }
 
         button {
-            padding: 10px 16px;
+            padding: 8px 14px;
             border: none;
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 4px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.15s;
         }
 
         .btn-primary {
@@ -406,7 +407,7 @@
             gap: 8px;
             font-weight: 600;
             color: #333;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .item-status {
@@ -430,14 +431,14 @@
             padding: 12px;
             max-height: 1000px;
             overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
+            transition: max-height 0.15s ease-out, padding 0.15s ease-out, opacity 0.15s ease-out;
             opacity: 1;
         }
 
         .item-body.collapsed {
             max-height: 0;
             padding: 0;
-            transition: max-height 0.3s ease-in, padding 0.3s ease-in, opacity 0.3s ease-in;
+            transition: max-height 0.15s ease-in, padding 0.15s ease-in, opacity 0.15s ease-in;
             opacity: 0;
         }
 
