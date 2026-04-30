@@ -25,14 +25,6 @@
             outline-offset: 2px;
         }
 
-        button:focus-visible,
-        input:focus-visible,
-        select:focus-visible,
-        textarea:focus-visible {
-            outline: 3px solid #0066cc;
-            outline-offset: 2px;
-        }
-
         .container {
             display: flex;
             height: 100vh;
@@ -388,11 +380,9 @@
             margin-bottom: 12px;
             cursor: move;
             transition: all 0.2s;
-            draggable: true;
             position: relative;
             overflow: hidden;
             box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-            /* Accessibility: Show drag handle on hover */
         }
 
         .item-card::before {
@@ -1229,6 +1219,7 @@
             IMAGE_JPEG_QUALITY: 0.7,
             SUCCESS_MESSAGE_DURATION: 3000,
             FORM_AUTOSAVE_KEY: 'feedbackFormDraft',
+            FORM_AUTOSAVE_DEBOUNCE_MS: 1000,
             SEARCH_DEBOUNCE_MS: 300
         };
 
@@ -1297,9 +1288,8 @@
                 formFields[id] = document.getElementById(id);
             });
 
-            const saved = localStorage.getItem('feedbackItems');
-            if (saved) {
-                items = JSON.parse(saved);
+            items = loadFromStorage();
+            if (items.length > 0) {
                 renderItems();
                 updatePreview();
             }
@@ -1344,20 +1334,8 @@
                 }, CONFIG.SEARCH_DEBOUNCE_MS);
             });
 
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                // Ctrl+K or Cmd+K: Focus search
-                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                    e.preventDefault();
-                    document.getElementById('searchItems').focus();
-                }
-                // Escape: Clear search
-                if (e.key === 'Escape' && document.activeElement.id === 'searchItems') {
-                    document.getElementById('searchItems').value = '';
-                    renderItems();
-                    document.activeElement.blur();
-                }
-            });
+            // Keyboard shortcuts (merged into single listener — see bottom of script for Escape/screenshot)
+            document.addEventListener('keydown', handleGlobalKeydown);
         });
 
         function handleFormKeydown(event) {
@@ -1745,9 +1723,7 @@
          */
         function autoSaveFormState() {
             clearTimeout(formAutoSaveTimeout);
-            formAutoSaveTimeout = setTimeout(() => {
-                saveFormState();
-            }, 1000); // Save after 1 second of inactivity
+            formAutoSaveTimeout = setTimeout(saveFormState, CONFIG.FORM_AUTOSAVE_DEBOUNCE_MS);
         }
 
         // ========== ITEM MANAGEMENT ==========
@@ -1757,18 +1733,15 @@
          * @param {number} id - The item ID to delete
          */
         function deleteItem(id) {
-            const item = items.find(item => item.id === id);
+            const item = items.find(i => i.id === id);
             if (item) {
                 showConfirm(
                     `Delete "${item.description.substring(0, 50)}${item.description.length > 50 ? '...' : ''}"?`,
                     'Delete Feedback Item?',
                     'Delete',
                     () => {
-                        const deletedItem = items.find(i => i.id === id);
-                        if (deletedItem) {
-                            undoStack.push(deletedItem);
-                            updateUndoButton();
-                        }
+                        undoStack.push(item);
+                        updateUndoButton();
                         items = items.filter(i => i.id !== id);
                         saveToStorage();
                         renderItems();
@@ -1819,7 +1792,11 @@
             document.getElementById('editModal').classList.remove('open');
             editingIndex = null;
             editScreenshot = null;
+            editDesignRef = null;
             document.getElementById('editScreenshotInput').value = '';
+            document.getElementById('editDesignRefInput').value = '';
+            document.getElementById('editScreenshotPreview').innerHTML = '';
+            document.getElementById('editDesignRefPreview').innerHTML = '';
         }
 
         /**
@@ -2105,8 +2082,8 @@
 
         /**
          * Generate complete markdown report of all feedback items
-         * Includes timestamp, file locations, severity, screenshots references
          * Empty fields are omitted to optimize token usage for Claude Code
+         * Field order: description → severity/tags → location → reproduction → screenshots
          * @returns {string} Formatted markdown text
          */
         function generateMarkdown() {
@@ -2114,30 +2091,33 @@
                 return '# Claude Code Feedback\n\nNo feedback items yet.';
             }
 
-            let markdown = `# Claude Code Feedback\n\n**Generated:** ${getTimestamp()}\n\n`;
+            let markdown = `# Claude Code Feedback\n\n`;
+            markdown += `Please review the following issues and suggest fixes, or ask clarifying questions if more context is needed.\n\n`;
+            markdown += `**Generated:** ${getTimestamp()}\n\n`;
 
             items.forEach((item, index) => {
                 markdown += `## Issue ${index + 1}\n\n`;
 
-                markdown += `**File:** ${item.fileLocation || ''}\n`;
-                markdown += `**URL:** ${item.url || ''}\n`;
-                markdown += `**Severity:** ${item.severity}\n`;
+                // Primary description first — most important context for Claude Code
+                if (item.description)       markdown += `**What's Happening:**\n${item.description}\n\n`;
 
-                markdown += `\n**Steps to Reproduce:**\n${item.stepsToReproduce || ''}\n`;
-                markdown += `\n**Expected Behavior:**\n${item.expectedBehavior || ''}\n`;
-                markdown += `\n**What's Happening:**\n${item.description || ''}\n`;
-                markdown += `\n**Error Messages:**\n${item.errorMessages ? '```\n' + item.errorMessages + '\n```' : ''}\n`;
+                // Severity and classification
+                                            markdown += `**Severity:** ${item.severity}\n`;
+                if (item.tags && item.tags.length > 0) markdown += `**Tags:** ${item.tags.join(', ')}\n`;
+                if (item.frequency)         markdown += `**Frequency:** ${item.frequency}\n`;
 
-                if (item.tags && item.tags.length > 0) {
-                    markdown += `\n**Tags:** ${item.tags.join(', ')}\n`;
-                }
+                // Location context — only if provided
+                if (item.fileLocation)      markdown += `**File:** ${item.fileLocation}\n`;
+                if (item.url)               markdown += `**URL:** ${item.url}\n`;
 
-                if (item.frequency) {
-                    markdown += `\n**Frequency:** ${item.frequency}\n`;
-                }
+                // Reproduction details — only if provided
+                if (item.stepsToReproduce)  markdown += `\n**Steps to Reproduce:**\n${item.stepsToReproduce}\n`;
+                if (item.expectedBehavior)  markdown += `\n**Expected Behavior:**\n${item.expectedBehavior}\n`;
+                if (item.errorMessages)     markdown += `\n**Error Messages:**\n\`\`\`\n${item.errorMessages}\n\`\`\`\n`;
 
-                markdown += `\n**Screenshot (Problem):** ${item.screenshot ? `\`screenshots/screenshot-${index + 1}.jpg\`` : ''}\n`;
-                markdown += `**Screenshot (Design Ref):** ${item.designRef ? `\`screenshots/design-ref-${index + 1}.jpg\`` : ''}\n`;
+                // Screenshots — only if attached
+                if (item.screenshot)        markdown += `\n**Screenshot (Problem):** \`screenshots/screenshot-${index + 1}.jpg\`\n`;
+                if (item.designRef)         markdown += `**Screenshot (Design Ref):** \`screenshots/design-ref-${index + 1}.jpg\`\n`;
 
                 markdown += '\n---\n\n';
             });
@@ -2163,7 +2143,14 @@
          */
         function updatePreview() {
             // Check if items actually changed to avoid unnecessary regeneration
-            const itemsVersion = JSON.stringify(items.map(i => ({ id: i.id, description: i.description, fileLocation: i.fileLocation, severity: i.severity, tags: i.tags })));
+            // Must include all fields that appear in the markdown output
+            const itemsVersion = JSON.stringify(items.map(i => ({
+                id: i.id, description: i.description, fileLocation: i.fileLocation,
+                url: i.url, severity: i.severity, tags: i.tags, frequency: i.frequency,
+                stepsToReproduce: i.stepsToReproduce, expectedBehavior: i.expectedBehavior,
+                errorMessages: i.errorMessages,
+                hasScreenshot: !!i.screenshot, hasDesignRef: !!i.designRef
+            })));
             if (itemsVersion === lastItemsVersion && cachedMarkdown) {
                 return; // No changes, skip regeneration
             }
@@ -2182,7 +2169,7 @@
          */
         function openExportModal() {
             if (items.length === 0) {
-                alert('Add at least one feedback item first');
+                showConfirm('Add at least one feedback item first.', 'Nothing to Export', 'OK', null);
                 return;
             }
             setModalState('exportModal', true);
@@ -2297,18 +2284,15 @@
          * @param {string} screenshotData - Base64 image data
          */
         function expandScreenshot(screenshotData) {
-            const modal = document.getElementById('expandedScreenshotModal');
-            const img = document.getElementById('expandedScreenshotImage');
-            img.src = screenshotData;
-            modal.classList.add('open');
+            document.getElementById('expandedScreenshotImage').src = screenshotData;
+            setModalState(MODALS.SCREENSHOT, true);
         }
 
         /**
          * Close the expanded screenshot modal
          */
         function closeExpandedScreenshot() {
-            const modal = document.getElementById('expandedScreenshotModal');
-            modal.classList.remove('open');
+            setModalState(MODALS.SCREENSHOT, false);
         }
 
         /**
@@ -2386,21 +2370,21 @@
         function generateSingleIssueMarkdown(item, itemIndex) {
             let markdown = `## Issue\n\n`;
 
-            markdown += `**File:** ${item.fileLocation || ''}\n`;
-            markdown += `**URL:** ${item.url || ''}\n`;
+            if (item.description)       markdown += `**What's Happening:**\n${item.description}\n\n`;
+
             markdown += `**Severity:** ${item.severity}\n`;
+            if (item.tags && item.tags.length > 0) markdown += `**Tags:** ${item.tags.join(', ')}\n`;
+            if (item.frequency)         markdown += `**Frequency:** ${item.frequency}\n`;
 
-            if (item.tags && item.tags.length > 0) {
-                markdown += `**Tags:** ${item.tags.join(', ')}\n`;
-            }
+            if (item.fileLocation)      markdown += `**File:** ${item.fileLocation}\n`;
+            if (item.url)               markdown += `**URL:** ${item.url}\n`;
 
-            markdown += `\n**Steps to Reproduce:**\n${item.stepsToReproduce || ''}\n`;
-            markdown += `\n**Expected Behavior:**\n${item.expectedBehavior || ''}\n`;
-            markdown += `\n**What's Happening:**\n${item.description || ''}\n`;
-            markdown += `\n**Error Messages:**\n${item.errorMessages ? '```\n' + item.errorMessages + '\n```' : ''}\n`;
-            markdown += `\n**Frequency:** ${item.frequency || 'Not specified'}\n`;
-            markdown += `\n**Screenshot (Problem):** ${item.screenshot ? `[screenshot]` : ''}\n`;
-            markdown += `**Screenshot (Design Ref):** ${item.designRef ? `[design reference]` : ''}\n`;
+            if (item.stepsToReproduce)  markdown += `\n**Steps to Reproduce:**\n${item.stepsToReproduce}\n`;
+            if (item.expectedBehavior)  markdown += `\n**Expected Behavior:**\n${item.expectedBehavior}\n`;
+            if (item.errorMessages)     markdown += `\n**Error Messages:**\n\`\`\`\n${item.errorMessages}\n\`\`\`\n`;
+
+            if (item.screenshot)        markdown += `\n**Screenshot (Problem):** \`screenshots/screenshot-${itemIndex + 1}.jpg\`\n`;
+            if (item.designRef)         markdown += `**Screenshot (Design Ref):** \`screenshots/design-ref-${itemIndex + 1}.jpg\`\n`;
 
             return markdown;
         }
@@ -2482,16 +2466,6 @@
          * All deleted items pushed to undo stack as a batch
          */
         function deleteAllItems() {
-            if (items.length === 0) {
-                showConfirm(
-                    'No feedback items to delete.',
-                    'Nothing to Delete',
-                    'OK',
-                    null
-                );
-                return;
-            }
-
             const count = items.length;
             showConfirm(
                 `This will permanently delete all ${count} feedback item${count !== 1 ? 's' : ''}. You can undo this action.`,
@@ -2516,45 +2490,41 @@
 
         // ========== EVENT LISTENERS ==========
         // Modal backdrop click handlers - close modal when clicking outside content
-        document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeEditModal();
-            }
+        const modalBackdropHandlers = {
+            'editModal':               closeEditModal,
+            'exportModal':             closeExportModal,
+            [MODALS.SCREENSHOT]:       closeExpandedScreenshot,
+            'confirmModal':            cancelConfirm,
+            'helpModal':               closeHelpModal
+        };
+        Object.entries(modalBackdropHandlers).forEach(([id, handler]) => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('click', (e) => { if (e.target === el) handler(); });
         });
 
-        document.getElementById('exportModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeExportModal();
+        // Unified global keyboard shortcut handler
+        function handleGlobalKeydown(e) {
+            // Ctrl+K / Cmd+K: Focus search box
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchItems').focus();
+                return;
             }
-        });
-
-        document.getElementById('expandedScreenshotModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeExpandedScreenshot();
-            }
-        });
-
-        document.getElementById('confirmModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                cancelConfirm();
-            }
-        });
-
-        document.getElementById('helpModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeHelpModal();
-            }
-        });
-
-        // Keyboard shortcuts - Escape key closes expanded screenshot
-        document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                const modal = document.getElementById('expandedScreenshotModal');
-                if (modal.classList.contains('open')) {
+                // Close expanded screenshot modal if open
+                const screenshotModal = document.getElementById(MODALS.SCREENSHOT);
+                if (screenshotModal && screenshotModal.classList.contains('open')) {
                     closeExpandedScreenshot();
+                    return;
+                }
+                // Clear search if search box is focused
+                if (document.activeElement.id === 'searchItems') {
+                    document.getElementById('searchItems').value = '';
+                    renderItems();
+                    document.activeElement.blur();
                 }
             }
-        });
+        }
     </script>
 </body>
 </html>
