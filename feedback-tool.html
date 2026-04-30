@@ -433,26 +433,6 @@
             font-size: 12px;
         }
 
-        .item-toggle {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #f0f0f0;
-            text-align: center;
-        }
-
-        .item-toggle-btn {
-            background: none;
-            border: none;
-            color: #0066cc;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            padding: 0;
-        }
-
-        .item-toggle-btn:hover {
-            text-decoration: underline;
-        }
 
         .item-details {
             padding: 12px 0;
@@ -1225,18 +1205,15 @@
             toggle.classList.toggle('open');
         }
 
-        function toggleItemDetails(itemId) {
+        function toggleItemDetails(event, itemId) {
+            // Don't toggle if clicking on a button
+            if (event.target.closest('button')) {
+                return;
+            }
+
             const itemCard = document.getElementById(`item-${itemId}`);
             const itemBody = itemCard.querySelector('.item-body');
-            const toggleBtn = itemCard.querySelector('.item-toggle-btn');
-
             itemBody.classList.toggle('collapsed');
-
-            if (itemBody.classList.contains('collapsed')) {
-                toggleBtn.innerHTML = '▶ Show details';
-            } else {
-                toggleBtn.innerHTML = '▼ Hide details';
-            }
         }
 
         function saveToStorage() {
@@ -1607,20 +1584,18 @@
                 const statusClass = complete ? 'complete' : 'incomplete';
 
                 return `
-                    <div class="item-card" draggable="true" id="item-${item.id}">
+                    <div class="item-card" draggable="true" id="item-${item.id}" onclick="toggleItemDetails(event, ${item.id})">
                         <div class="item-header">
                             <span class="item-number-badge">
                                 Item ${index + 1}
                                 <span class="item-status ${statusClass}">${statusIcon}</span>
                             </span>
                             <div class="item-actions">
-                                <button class="btn-secondary" style="padding: 6px 10px; font-size: 11px;" onclick="copySingleIssue(${item.id})" title="Copy">Copy</button>
-                                <button class="btn-secondary" style="padding: 6px 10px; font-size: 11px;" onclick="openEditModal(${item.id})">Edit</button>
-                                <button class="btn-danger" style="padding: 6px 10px; font-size: 11px;" onclick="deleteItem(${item.id})">✕</button>
+                                <button class="btn-secondary" style="padding: 6px 10px; font-size: 11px;" onclick="event.stopPropagation(); copySingleIssue(${item.id})" title="Copy">Copy</button>
+                                <button class="btn-secondary" style="padding: 6px 10px; font-size: 11px;" onclick="event.stopPropagation(); openEditModal(${item.id})">Edit</button>
+                                <button class="btn-danger" style="padding: 6px 10px; font-size: 11px;" onclick="event.stopPropagation(); deleteItem(${item.id})">✕</button>
                             </div>
                         </div>
-
-                        <button class="item-toggle-btn" onclick="toggleItemDetails(${item.id})">▶ Show details</button>
 
                         <div class="item-body collapsed">
                             <div class="item-summary">
