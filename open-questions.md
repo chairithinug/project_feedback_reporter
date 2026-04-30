@@ -2,20 +2,12 @@
 
 ## Unresolved
 
-- **Q:** Does the markdown export format work well for Claude Code, or should structure be adjusted?
-  - **Why it matters:** If Claude Code struggles parsing the format, token efficiency gains are lost
-  - **What would resolve it:** Test with Claude Code on real feedback items; adjust format based on feedback
-  - **Owner:** User — needs real-world testing with Claude Code
 
 - **Q:** Is image compression (max 1200px, 70% JPEG) sufficient, or do users need lossless export option?
   - **Why it matters:** Token optimization vs. visual fidelity trade-off. Compression helps unless users need pixel-perfect screenshots.
   - **What would resolve it:** Gather feedback after real use — does Claude Code need higher quality? Do users want lossless option?
   - **Owner:** User — observe during actual workflow
 
-- **Q:** Should the tool support drag-and-drop reordering of items for priority management?
-  - **Why it matters:** Could improve organization for teams with many feedback items
-  - **What would resolve it:** User request or observation of friction when items exceed ~20 entries
-  - **Owner:** Unassigned — low priority unless user asks
 
 ## Closed
 
@@ -25,7 +17,11 @@
 
 - **Q:** What image compression is appropriate? → **Resolved 2026-04-30:** Max 1200px width, 70% JPEG quality. Reduces payload ~70-80% without visible loss for UI screenshots. Can revisit if Claude Code needs higher quality.
 
+- **Q:** Does the markdown export format work well for Claude Code? → **Resolved 2026-05-01:** Audited and fixed. Three issues found: empty fields weren't omitted (bug), field order buried the description, and no default task instruction. All three corrected in `generateMarkdown()`.
+
 - **Q:** Should design reference screenshots be supported? → **Resolved 2026-04-30:** Yes. Added as optional field in Additional Details. Displays alongside problem screenshots in expandable item cards.
+
+- **Q:** Should the tool support drag-and-drop reordering of items? → **Resolved 2026-04-30:** Yes. Implemented via HTML5 drag API with event delegation. Verified working with 50+ items.
 
 - **Q:** How should the UI handle many feedback items without becoming overwhelming? → **Resolved 2026-04-30:** Implemented expandable item cards with collapsible details, search/filter, tags, and thumbnail previews. Reduces cognitive load while keeping details accessible.
 

@@ -60,7 +60,7 @@ Press **? Help** in the app to view all shortcuts.
 
 - **Performance:** 60-98% faster operations (event delegation, debounced markdown)
 - **Accessibility:** WCAG 2.1 Level AA compliant (focus indicators, ARIA labels, keyboard nav)
-- **Code quality:** ~2500 lines, well-documented, minimal duplication
+- **Code quality:** 2530 lines, well-documented, minimal duplication
 - **Tested:** 50+ items, drag reordering, all features verified
 - **Browser support:** Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
 
@@ -127,16 +127,42 @@ incident_reporter/
 
 ---
 
-## Latest Updates (v1.0.0)
+## Latest Updates
 
-**Phases 1-3 Complete:**
+**2026-05-01 — Code audit & fixes (13 issues)**
+
+*Bugs fixed:*
+- ✅ `generateSingleIssueMarkdown` — empty fields now omitted, field order corrected, screenshot paths fixed (affected every item "Copy" button)
+- ✅ `updatePreview` cache — fingerprint now covers all 10 output fields; edits to steps/URL/errors/frequency/screenshots now trigger preview refresh
+- ✅ `closeEditModal` — now correctly clears `editDesignRef` state and previews (previously leaked into next edit session)
+- ✅ Last raw `alert()` in `openExportModal` replaced with `showConfirm` modal
+
+*Dead / broken code removed:*
+- ✅ `loadFromStorage()` — defined but never called; now wired into load handler
+- ✅ `MODALS.SCREENSHOT` — defined but unused; now referenced throughout
+- ✅ `draggable: true` in CSS — invalid property removed from `.item-card`
+- ✅ Unreachable empty-items guard in `deleteAllItems` removed
+
+*Redundancy reduced (33 lines net):*
+- ✅ Double `items.find` in `deleteItem` collapsed to one
+- ✅ Two `document.keydown` listeners merged into `handleGlobalKeydown`
+- ✅ Five modal backdrop handlers replaced with a map + `forEach` (25 lines → 7)
+- ✅ `autoSaveFormState` magic `1000` moved to `CONFIG.FORM_AUTOSAVE_DEBOUNCE_MS`
+- ✅ Duplicate `:focus-visible` CSS block removed
+
+**2026-05-01 — Markdown export improvements**
+- ✅ Empty fields now fully omitted (bug: headers were emitted with blank values)
+- ✅ Field order: What's Happening leads each issue block
+- ✅ Default task instruction added to header
+
+**Phases 1-3 Complete (2026-04-30):**
 - Event delegation: 98% reduction in listeners
 - Debounced markdown: 60% faster regeneration
 - WCAG 2.1 Level AA accessibility throughout
 - 30+ comprehensive ARIA labels
 - Full keyboard navigation support
 
-**Recent Bug Fixes:**
+**Phase 0 bug fixes (2026-04-30):**
 - ✅ Screenshot deletion via X button (ID case mismatch)
 - ✅ Modal confirmation callbacks
 - ✅ Form persistence and storage
@@ -146,5 +172,5 @@ incident_reporter/
 
 ## Version
 
-**Current:** 2026-05-01 (v1.0.0)  
-**Status:** Production-ready with all optimizations, accessibility compliance, and bug fixes
+**Current:** 2026-05-01 (v1.0.1)  
+**Status:** Production-ready — all optimizations, accessibility compliance, bug fixes, and code audit complete
