@@ -401,6 +401,15 @@
 
         .item-body {
             padding: 16px;
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .item-body.collapsed {
+            max-height: 0;
+            padding: 0;
+            transition: max-height 0.3s ease-in;
         }
 
         .item-summary {
@@ -446,14 +455,14 @@
         }
 
         .item-details {
-            display: none;
-            padding: 12px 16px;
+            padding: 12px 0;
             border-top: 1px solid #f0f0f0;
             font-size: 13px;
+            margin-top: 12px;
         }
 
-        .item-details.expanded {
-            display: block;
+        .item-toggle-section {
+            margin-top: 12px;
         }
 
         .item-detail-row {
@@ -1216,6 +1225,20 @@
             toggle.classList.toggle('open');
         }
 
+        function toggleItemDetails(itemId) {
+            const itemCard = document.getElementById(`item-${itemId}`);
+            const itemBody = itemCard.querySelector('.item-body');
+            const toggleBtn = itemCard.querySelector('.item-toggle-btn');
+
+            itemBody.classList.toggle('collapsed');
+
+            if (itemBody.classList.contains('collapsed')) {
+                toggleBtn.innerHTML = '▶ Show details';
+            } else {
+                toggleBtn.innerHTML = '▼ Hide details';
+            }
+        }
+
         function saveToStorage() {
             localStorage.setItem('feedbackItems', JSON.stringify(items));
         }
@@ -1597,7 +1620,9 @@
                             </div>
                         </div>
 
-                        <div class="item-body">
+                        <button class="item-toggle-btn" onclick="toggleItemDetails(${item.id})">▶ Show details</button>
+
+                        <div class="item-body collapsed">
                             <div class="item-summary">
                                 ${item.description ? `<div class="item-description">${escapeHtml(item.description)}</div>` : ''}
 
@@ -1635,21 +1660,13 @@
                                 </div>
                             ` : ''}
 
-                            ${item.fileLocation || item.url || item.errorMessages ? `
-                                <div class="item-toggle">
-                                    <button class="item-toggle-btn" onclick="toggleItemDetails(${item.id})">
-                                        <span id="toggle-text-${item.id}">▼ Show details</span>
-                                    </button>
-                                </div>
-
-                                <div class="item-details" id="details-${item.id}">
-                                    ${item.fileLocation ? `<div class="item-detail-row"><span class="item-detail-label">File:</span><span class="item-detail-value">${escapeHtml(item.fileLocation)}</span></div>` : ''}
-                                    ${item.url ? `<div class="item-detail-row"><span class="item-detail-label">URL:</span><span class="item-detail-value">${escapeHtml(item.url)}</span></div>` : ''}
-                                    ${item.stepsToReproduce ? `<div class="item-detail-row"><span class="item-detail-label">Steps:</span><span class="item-detail-value">${escapeHtml(item.stepsToReproduce)}</span></div>` : ''}
-                                    ${item.expectedBehavior ? `<div class="item-detail-row"><span class="item-detail-label">Expected:</span><span class="item-detail-value">${escapeHtml(item.expectedBehavior)}</span></div>` : ''}
-                                    ${item.errorMessages ? `<div class="item-detail-row"><span class="item-detail-label">Errors:</span><span class="item-detail-value"><code style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">${escapeHtml(item.errorMessages.substring(0, 100))}</code></span></div>` : ''}
-                                </div>
-                            ` : ''}
+                            <div class="item-details">
+                                ${item.fileLocation ? `<div class="item-detail-row"><span class="item-detail-label">File:</span><span class="item-detail-value">${escapeHtml(item.fileLocation)}</span></div>` : ''}
+                                ${item.url ? `<div class="item-detail-row"><span class="item-detail-label">URL:</span><span class="item-detail-value">${escapeHtml(item.url)}</span></div>` : ''}
+                                ${item.stepsToReproduce ? `<div class="item-detail-row"><span class="item-detail-label">Steps:</span><span class="item-detail-value">${escapeHtml(item.stepsToReproduce)}</span></div>` : ''}
+                                ${item.expectedBehavior ? `<div class="item-detail-row"><span class="item-detail-label">Expected:</span><span class="item-detail-value">${escapeHtml(item.expectedBehavior)}</span></div>` : ''}
+                                ${item.errorMessages ? `<div class="item-detail-row"><span class="item-detail-label">Errors:</span><span class="item-detail-value"><code style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">${escapeHtml(item.errorMessages.substring(0, 100))}</code></span></div>` : ''}
+                            </div>`
                         </div>
                     </div>
                 `;
