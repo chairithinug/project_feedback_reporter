@@ -19,6 +19,20 @@
             line-height: 1.6;
         }
 
+        /* Accessibility: Strong focus indicators for keyboard navigation */
+        :focus-visible {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
+        }
+
         .container {
             display: flex;
             height: 100vh;
@@ -31,7 +45,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            overflow-y: auto;
+            overflow-y: scroll;
             padding-right: 8px;
         }
 
@@ -50,8 +64,8 @@
             flex-direction: column;
             background: white;
             border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            padding: 18px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            padding: 16px;
             overflow-y: auto;
             gap: 12px;
         }
@@ -75,12 +89,12 @@
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
-            padding: 8px 0;
+            padding: 12px;
             user-select: none;
         }
 
         .collapsible-header h3 {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             margin: 0;
             flex: 1;
@@ -133,12 +147,12 @@
             border-radius: 4px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.06);
             z-index: 10;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .form-section {
             background: white;
-            padding: 14px;
+            padding: 12px;
             border-radius: 4px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.06);
         }
@@ -181,13 +195,13 @@
 
         .drop-zone {
             border: 2px dashed #0066cc;
-            border-radius: 4px;
+            border-radius: 6px;
             padding: 24px 16px;
             text-align: center;
             background: #f9f9f9;
             cursor: pointer;
             transition: all 0.15s;
-            min-height: 110px;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -277,7 +291,7 @@
 
         .expandable-content {
             display: none;
-            padding: 15px;
+            padding: 12px;
             background: white;
             border-top: 1px solid #ddd;
         }
@@ -287,7 +301,7 @@
         }
 
         .expandable-content .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .expandable-content .form-group:last-child {
@@ -296,8 +310,8 @@
 
         .button-group {
             display: flex;
-            gap: 10px;
-            margin-top: 14px;
+            gap: 12px;
+            margin-top: 12px;
             padding-top: 12px;
             border-top: 1px solid #f0f0f0;
         }
@@ -338,8 +352,8 @@
         .btn-danger {
             background: #dc3545;
             color: white;
-            padding: 6px 10px;
-            font-size: 12px;
+            padding: 8px 14px;
+            font-size: 13px;
         }
 
         .btn-danger:hover {
@@ -356,7 +370,7 @@
             background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
             flex: 1;
             overflow-y: auto;
         }
@@ -378,6 +392,24 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            /* Accessibility: Show drag handle on hover */
+        }
+
+        .item-card::before {
+            content: '⋮⋮';
+            position: absolute;
+            left: 4px;
+            top: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: #ccc;
+            font-size: 12px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+
+        .item-card:hover::before {
+            opacity: 1;
         }
 
         .item-card:hover {
@@ -461,6 +493,7 @@
             flex-wrap: wrap;
             align-items: center;
             font-size: 12px;
+            color: #333;
         }
 
 
@@ -510,7 +543,7 @@
         }
 
         .item-screenshot-label {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             color: #666;
             margin-bottom: 6px;
@@ -662,7 +695,7 @@
 
         .preview-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             margin-top: 12px;
             padding-top: 12px;
             border-top: 1px solid #f0f0f0;
@@ -670,7 +703,7 @@
 
         .empty-state {
             text-align: center;
-            color: #999;
+            color: #666;
             padding: 30px 20px;
             font-size: 14px;
         }
@@ -702,7 +735,7 @@
         }
 
         h3 {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             color: #333;
             margin: 0 0 12px 0;
@@ -741,7 +774,7 @@
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
             margin: auto;
         }
 
@@ -805,8 +838,8 @@
 
         .modal-drop-zone {
             border: 2px dashed #0066cc;
-            border-radius: 8px;
-            padding: 25px 15px;
+            border-radius: 6px;
+            padding: 24px 16px;
             text-align: center;
             background: #f9f9f9;
             cursor: pointer;
@@ -846,8 +879,19 @@
 
         .modal-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: background 0.15s;
         }
 
         .compression-note {
@@ -861,23 +905,24 @@
     <div class="container">
         <div class="left-panel">
             <div class="form-header">
-                <div class="form-group">
-                    <label style="margin-bottom: 10px;">Quick Templates</label>
-                    <div id="templateButtons" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 15px;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <label style="margin: 0;">Quick Templates</label>
+                    <button class="btn-secondary" aria-label="Show keyboard shortcuts help" style="padding: 4px 10px; font-size: 12px; width: auto;" onclick="openHelpModal()" title="View keyboard shortcuts">? Help</button>
+                </div>
+                <div id="templateButtons" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;"></div>
+
+                <div id="undoContainer" style="margin-bottom: 12px; display: none;">
+                    <button class="btn-secondary" style="width: 100%; padding: 8px;" onclick="undoDelete()" aria-label="Restore previously deleted feedback items">↶ Undo delete</button>
                 </div>
 
-                <div id="undoContainer" style="margin-bottom: 15px; display: none;">
-                    <button class="btn-secondary" style="width: 100%; padding: 8px;" onclick="undoDelete()">↶ Undo delete</button>
-                </div>
-
                 <div class="form-group">
-                    <label>What's Happening</label>
+                    <label for="description">What's Happening</label>
                     <textarea id="description" placeholder="Describe what's broken, what should happen, error details..." onkeydown="handleFormKeydown(event)"></textarea>
                     <div class="keyboard-hint">💡 Ctrl+Enter to submit, Escape to clear, Ctrl+K to search items</div>
                 </div>
 
                 <div class="form-group">
-                    <label>Screenshot</label>
+                    <label for="screenshotInput">Screenshot</label>
                     <div class="drop-zone" id="dropZone">
                         <div class="drop-zone-icon">📸</div>
                         <div class="drop-zone-text">Drop screenshot here or click to select</div>
@@ -889,23 +934,23 @@
                 </div>
 
                 <div class="expandable-section">
-                    <div class="expandable-header" onclick="toggleSection(this)">
+                    <div class="expandable-header" onclick="toggleSection(this)" onkeydown="handleCollapsibleKeydown(event, () => toggleSection(this))" role="button" tabindex="0" aria-expanded="false" aria-label="Toggle additional details section">
                         + Additional Details
                         <span class="expandable-icon">▼</span>
                     </div>
                     <div class="expandable-content">
                         <div class="form-group">
-                            <label>File Location</label>
+                            <label for="fileLocation">File Location</label>
                             <input type="text" id="fileLocation" placeholder="e.g., src/components/Button.tsx">
                         </div>
 
                         <div class="form-group">
-                            <label>URL</label>
+                            <label for="url">URL</label>
                             <input type="text" id="url" placeholder="e.g., https://app.example.com/settings">
                         </div>
 
                         <div class="form-group">
-                            <label>Severity</label>
+                            <label for="severity">Severity</label>
                             <select id="severity">
                                 <option value="Low">Low</option>
                                 <option value="Medium" selected>Medium</option>
@@ -914,8 +959,8 @@
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label>Category/Tags</label>
+                        <fieldset>
+                            <legend style="font-weight: 600; margin-bottom: 8px;">Category/Tags</legend>
                             <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                                 <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
                                     <input type="checkbox" name="tag" value="frontend"> Frontend
@@ -933,10 +978,10 @@
                                     <input type="checkbox" name="tag" value="crash"> Crash
                                 </label>
                             </div>
-                        </div>
+                        </fieldset>
 
                         <div class="form-group">
-                            <label>Frequency</label>
+                            <label for="frequency">Frequency</label>
                             <select id="frequency">
                                 <option value="">Not specified</option>
                                 <option value="Always">Always</option>
@@ -946,22 +991,22 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Steps to Reproduce</label>
+                            <label for="stepsToReproduce">Steps to Reproduce</label>
                             <textarea id="stepsToReproduce" placeholder="1. Click the button&#10;2. See the error&#10;3. ..."></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label>Expected Behavior</label>
+                            <label for="expectedBehavior">Expected Behavior</label>
                             <textarea id="expectedBehavior" placeholder="What should happen instead?"></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label>Error Messages</label>
+                            <label for="errorMessages">Error Messages</label>
                             <textarea id="errorMessages" placeholder="Stack traces, console errors, etc..."></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label>Design Reference Screenshot <span style="font-weight: 400; color: #999; font-size: 12px;">(optional — for UI/UX issues)</span></label>
+                            <label for="designRefInput">Design Reference Screenshot <span style="font-weight: 400; color: #999; font-size: 12px;">(optional — for UI/UX issues)</span></label>
                             <div class="drop-zone" id="dropZoneDesignRef">
                                 <div class="drop-zone-icon">🎨</div>
                                 <div class="drop-zone-text">Drop design reference here or click to select</div>
@@ -975,8 +1020,8 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="btn-primary" onclick="addItem()">Add Feedback Item</button>
-                    <button class="btn-secondary" onclick="clearForm()">Clear</button>
+                    <button class="btn-primary" onclick="addItem()" aria-label="Add feedback item to the list">Add Feedback Item</button>
+                    <button class="btn-secondary" onclick="clearForm()" aria-label="Clear all form fields">Clear</button>
                 </div>
             </div>
 
@@ -984,14 +1029,17 @@
 
         <div class="right-panel">
             <div class="items-section-right">
-                <div class="collapsible-header" onclick="toggleItemsSection()">
-                    <h3>Feedback Items</h3>
-                    <div class="collapsible-toggle open" id="itemsToggle">▼</div>
+                <div class="collapsible-header" onclick="toggleItemsSection()" onkeydown="handleCollapsibleKeydown(event, toggleItemsSection)" role="button" tabindex="0" aria-expanded="true" aria-label="Toggle feedback items section" style="margin-bottom: 12px;">
+                    <h3 style="margin-bottom: 0;">Feedback Items</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <button class="btn-danger" id="deleteAllBtn" style="width: auto; display: none;" onclick="deleteAllItems()" title="Delete all items">Delete All</button>
+                        <div class="collapsible-toggle open" id="itemsToggle">▼</div>
+                    </div>
                 </div>
                 <div class="items-content" id="itemsContent">
-                    <div style="margin-bottom: 15px;">
-                        <input type="text" id="searchItems" placeholder="🔍 Search by description, file, or tag..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;">
-                        <div id="searchResults" style="font-size: 12px; color: #666; margin-top: 6px;"></div>
+                    <div style="margin-bottom: 12px;">
+                        <input type="text" id="searchItems" placeholder="🔍 Search by description, file, or tag..." aria-label="Search items by description, file location, or tags" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;">
+                        <div id="searchResults" style="font-size: 13px; color: #333; margin-top: 8px; font-weight: 500;"></div>
                     </div>
                     <div id="itemsList"></div>
                 </div>
@@ -1004,8 +1052,8 @@
             <div id="successMessage"></div>
             <div class="preview-markdown" id="previewMarkdown"></div>
             <div class="preview-actions">
-                <button class="btn-primary" onclick="openExportModal()">Export & Next Steps</button>
-                <button class="btn-secondary" onclick="copyMarkdown()">Copy Markdown</button>
+                <button class="btn-primary" onclick="openExportModal()" aria-label="Export feedback as markdown or zip package">Export & Next Steps</button>
+                <button class="btn-secondary" onclick="copyMarkdown()" aria-label="Copy markdown text to clipboard">Copy Markdown</button>
             </div>
         </div>
     </div>
@@ -1015,11 +1063,11 @@
         <div class="modal-content">
             <h2>Edit Feedback Item</h2>
             <div class="modal-form-group">
-                <label>What's Happening</label>
+                <label for="editDescription">What's Happening</label>
                 <textarea id="editDescription"></textarea>
             </div>
             <div class="modal-form-group">
-                <label>Screenshot</label>
+                <label for="editScreenshotInput">Screenshot</label>
                 <div class="modal-drop-zone" id="editDropZone">
                     <div class="drop-zone-icon">📸</div>
                     <div class="drop-zone-text">Drop screenshot here or click to select</div>
@@ -1030,15 +1078,15 @@
 
             <div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">
                 <div class="modal-form-group">
-                    <label>File Location</label>
+                    <label for="editFileLocation">File Location</label>
                     <input type="text" id="editFileLocation">
                 </div>
                 <div class="modal-form-group">
-                    <label>URL</label>
+                    <label for="editUrl">URL</label>
                     <input type="text" id="editUrl">
                 </div>
                 <div class="modal-form-group">
-                    <label>Severity</label>
+                    <label for="editSeverity">Severity</label>
                     <select id="editSeverity">
                         <option value="Low">Low</option>
                         <option value="Medium" selected>Medium</option>
@@ -1046,8 +1094,8 @@
                         <option value="Critical">Critical</option>
                     </select>
                 </div>
-                <div class="modal-form-group">
-                    <label>Category/Tags</label>
+                <fieldset>
+                    <legend style="font-weight: 600; margin-bottom: 8px;">Category/Tags</legend>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                         <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
                             <input type="checkbox" name="editTag" value="frontend"> Frontend
@@ -1065,9 +1113,9 @@
                             <input type="checkbox" name="editTag" value="crash"> Crash
                         </label>
                     </div>
-                </div>
+                </fieldset>
                 <div class="modal-form-group">
-                    <label>Frequency</label>
+                    <label for="editFrequency">Frequency</label>
                     <select id="editFrequency">
                         <option value="">Not specified</option>
                         <option value="Always">Always</option>
@@ -1076,19 +1124,19 @@
                     </select>
                 </div>
                 <div class="modal-form-group">
-                    <label>Steps to Reproduce</label>
+                    <label for="editStepsToReproduce">Steps to Reproduce</label>
                     <textarea id="editStepsToReproduce"></textarea>
                 </div>
                 <div class="modal-form-group">
-                    <label>Expected Behavior</label>
+                    <label for="editExpectedBehavior">Expected Behavior</label>
                     <textarea id="editExpectedBehavior"></textarea>
                 </div>
                 <div class="modal-form-group">
-                    <label>Error Messages</label>
+                    <label for="editErrorMessages">Error Messages</label>
                     <textarea id="editErrorMessages"></textarea>
                 </div>
                 <div class="modal-form-group">
-                    <label>Design Reference Screenshot <span style="font-weight: 400; color: #999; font-size: 12px;">(optional)</span></label>
+                    <label for="editDesignRefInput">Design Reference Screenshot <span style="font-weight: 400; color: #999; font-size: 12px;">(optional)</span></label>
                     <div class="modal-drop-zone" id="editDropZoneDesignRef">
                         <div class="drop-zone-icon">🎨</div>
                         <div class="drop-zone-text">Drop design reference here or click to select</div>
@@ -1114,35 +1162,101 @@
             <div class="export-option">
                 <h3>📋 Simple: Copy & Paste</h3>
                 <p>Copy the markdown text and paste directly into Claude Code chat. Upload the screenshots folder separately.</p>
-                <button class="btn-primary" onclick="copyAndCloseExport()">Copy Markdown</button>
+                <button class="btn-primary" onclick="copyAndCloseExport()" aria-label="Copy markdown text to clipboard">Copy Markdown</button>
             </div>
 
             <div class="export-option">
                 <h3>📦 Complete: Download Zip</h3>
                 <p>Download a zip file with markdown + all screenshots. Upload the entire folder to Claude Code, then paste the markdown.</p>
-                <button class="btn-primary" onclick="downloadZipAndClose()">Download Zip</button>
+                <button class="btn-primary" onclick="downloadZipAndClose()" aria-label="Download all feedback items and screenshots as zip file">Download Zip</button>
             </div>
 
-            <button class="btn-secondary" style="width: 100%; margin-top: 20px;" onclick="closeExportModal()">Cancel</button>
+            <button class="btn-secondary" style="width: 100%; margin-top: 20px;" onclick="closeExportModal()" aria-label="Close export dialog">Cancel</button>
         </div>
     </div>
 
     <!-- Expanded Screenshot Modal -->
     <div class="expanded-screenshot-modal" id="expandedScreenshotModal">
         <div class="expanded-screenshot-content">
-            <button class="expanded-screenshot-close" onclick="closeExpandedScreenshot()">×</button>
+            <button class="expanded-screenshot-close" onclick="closeExpandedScreenshot()" aria-label="Close expanded screenshot view">×</button>
             <img id="expandedScreenshotImage" alt="expanded screenshot">
         </div>
     </div>
 
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 id="confirmTitle" style="margin-bottom: 15px;">Confirm Action</h2>
+            <p id="confirmMessage" style="color: #666; margin-bottom: 25px;"></p>
+            <div class="modal-actions">
+                <button onclick="cancelConfirm()" aria-label="Cancel and close dialog" style="background: #f0f0f0; color: #333;">Cancel</button>
+                <button id="confirmButton" onclick="proceedConfirm()" aria-label="Confirm and proceed with action" style="background: #dc3545; color: white;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 style="margin-bottom: 20px;">⌨️ Keyboard Shortcuts</h2>
+            <div style="display: grid; gap: 12px; font-size: 13px;">
+                <div style="display: flex; gap: 15px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                    <div style="font-weight: 600; min-width: 120px; color: #0066cc;">Ctrl+Enter</div>
+                    <div style="color: #666;">Submit feedback item</div>
+                </div>
+                <div style="display: flex; gap: 15px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                    <div style="font-weight: 600; min-width: 120px; color: #0066cc;">Escape</div>
+                    <div style="color: #666;">Clear form (when focused)</div>
+                </div>
+                <div style="display: flex; gap: 15px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                    <div style="font-weight: 600; min-width: 120px; color: #0066cc;">Ctrl+K / Cmd+K</div>
+                    <div style="color: #666;">Focus search box</div>
+                </div>
+                <div style="display: flex; gap: 15px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                    <div style="font-weight: 600; min-width: 120px; color: #0066cc;">Escape (in search)</div>
+                    <div style="color: #666;">Clear search results</div>
+                </div>
+            </div>
+            <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="closeHelpModal()" aria-label="Close keyboard shortcuts help">Got it</button>
+        </div>
+    </div>
+
     <script>
+        // ========== CONFIGURATION & CONSTANTS ==========
+        const CONFIG = {
+            STORAGE_KEY: 'feedbackItems',
+            IMAGE_MAX_WIDTH: 1200,
+            IMAGE_JPEG_QUALITY: 0.7,
+            SUCCESS_MESSAGE_DURATION: 3000,
+            FORM_AUTOSAVE_KEY: 'feedbackFormDraft',
+            SEARCH_DEBOUNCE_MS: 300
+        };
+
+        const MODALS = {
+            EDIT: 'editModal',
+            EXPORT: 'exportModal',
+            SCREENSHOT: 'expandedScreenshotModal'
+        };
+
+        // ========== GLOBAL STATE ==========
+        // Data storage
         let items = [];
-        let editingIndex = null;
+        let undoStack = [];
         let currentScreenshot = null;
         let currentDesignRef = null;
         let editScreenshot = null;
         let editDesignRef = null;
-        let undoStack = [];
+        let editingIndex = null;
+
+        // UI state
+        let confirmCallback = null;
+        let formAutoSaveTimeout = null;
+        let previewUpdateTimeout = null;
+        let cachedMarkdown = null;
+        let lastItemsVersion = null;
+
+        // Form field cache (populated on page load, reduces repeated DOM queries)
+        const formFields = {};
 
         const TEMPLATES = {
             'UI Bug': {
@@ -1178,6 +1292,11 @@
         };
 
         window.addEventListener('load', () => {
+            // Cache form field references (eliminates repeated DOM queries in clearForm, addItem, etc.)
+            ['description', 'fileLocation', 'url', 'severity', 'stepsToReproduce', 'expectedBehavior', 'errorMessages', 'frequency', 'screenshotInput', 'screenshotPreview', 'designRefInput', 'designRefPreview'].forEach(id => {
+                formFields[id] = document.getElementById(id);
+            });
+
             const saved = localStorage.getItem('feedbackItems');
             if (saved) {
                 items = JSON.parse(saved);
@@ -1185,6 +1304,9 @@
                 updatePreview();
             }
             setupDropZones();
+
+            // Restore form state from last session
+            restoreFormState();
 
             // Setup template buttons
             const templateContainer = document.getElementById('templateButtons');
@@ -1197,10 +1319,29 @@
                 templateContainer.appendChild(btn);
             });
 
+            // Attach auto-save to form inputs
+            const formInputs = [
+                'description', 'fileLocation', 'url', 'severity',
+                'stepsToReproduce', 'expectedBehavior', 'errorMessages', 'frequency'
+            ];
+            formInputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', autoSaveFormState);
+            });
+            // Also attach to tag checkboxes
+            document.querySelectorAll('input[name="tag"]').forEach(el => {
+                el.addEventListener('change', autoSaveFormState);
+            });
+
             // Search functionality
-            document.getElementById('searchItems').addEventListener('input', (e) => {
-                const filtered = filterItems(e.target.value);
-                renderItems(filtered);
+            const searchInput = document.getElementById('searchItems');
+            let searchTimeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const filtered = filterItems(e.target.value);
+                    renderItems(filtered);
+                }, CONFIG.SEARCH_DEBOUNCE_MS);
             });
 
             // Keyboard shortcuts
@@ -1228,18 +1369,32 @@
             }
         }
 
+        function handleCollapsibleKeydown(event, callback) {
+            // Support keyboard activation for role="button" elements
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                callback();
+            }
+        }
+
         function toggleSection(header) {
             const content = header.nextElementSibling;
             const icon = header.querySelector('.expandable-icon');
+            const isNowOpen = !content.classList.contains('open');
             content.classList.toggle('open');
             icon.classList.toggle('open');
+            // Update aria-expanded for accessibility
+            header.setAttribute('aria-expanded', isNowOpen);
         }
 
         function toggleItemsSection() {
             const content = document.getElementById('itemsContent');
             const toggle = document.getElementById('itemsToggle');
+            const isNowCollapsed = !content.classList.contains('collapsed');
             content.classList.toggle('collapsed');
             toggle.classList.toggle('open');
+            // Update aria-expanded for accessibility
+            toggle.setAttribute('aria-expanded', !isNowCollapsed);
         }
 
         function toggleItemDetails(event, itemId) {
@@ -1253,15 +1408,88 @@
             itemBody.classList.toggle('collapsed');
         }
 
+        // ========== STORAGE MANAGEMENT ==========
+        /** Persist items to browser localStorage */
         function saveToStorage() {
-            localStorage.setItem('feedbackItems', JSON.stringify(items));
+            localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(items));
         }
 
-        function setupDropZones() {
-            const dropZone = document.getElementById('dropZone');
-            const screenshotInput = document.getElementById('screenshotInput');
+        /** Load items from browser localStorage */
+        function loadFromStorage() {
+            const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
+            return saved ? JSON.parse(saved) : [];
+        }
 
-            dropZone.addEventListener('click', () => screenshotInput.click());
+        // ========== MODAL MANAGEMENT ==========
+        /** Open or close a modal by ID */
+        function setModalState(modalId, isOpen) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                if (isOpen) {
+                    modal.classList.add('open');
+                } else {
+                    modal.classList.remove('open');
+                }
+            }
+        }
+
+        /**
+         * Show confirmation modal instead of browser alert()
+         * @param {string} message - Confirmation message
+         * @param {string} title - Modal title (default: "Confirm")
+         * @param {string} buttonLabel - Confirm button label (default: "Delete")
+         * @param {Function} callback - Called if user clicks confirm
+         */
+        function showConfirm(message, title = 'Confirm', buttonLabel = 'Delete', callback = null) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmButton').textContent = buttonLabel;
+            confirmCallback = callback;
+            setModalState('confirmModal', true);
+        }
+
+        function cancelConfirm() {
+            setModalState('confirmModal', false);
+            confirmCallback = null;
+        }
+
+        function proceedConfirm() {
+            if (confirmCallback && typeof confirmCallback === 'function') {
+                confirmCallback();
+            }
+            setModalState('confirmModal', false);
+            confirmCallback = null;
+        }
+
+        /**
+         * Open help modal showing keyboard shortcuts
+         */
+        function openHelpModal() {
+            setModalState('helpModal', true);
+        }
+
+        /**
+         * Close help modal
+         */
+        function closeHelpModal() {
+            setModalState('helpModal', false);
+        }
+
+        // ========== DROP ZONE UTILITIES ==========
+        /**
+         * Setup a drop zone for file uploads
+         * @param {string} dropZoneId - ID of drop zone element
+         * @param {string} inputId - ID of hidden file input
+         * @param {string} previewId - ID of preview container
+         * @param {string} source - Source identifier ('main', 'edit', 'mainDesignRef', 'editDesignRef')
+         */
+        function setupDropZone(dropZoneId, inputId, previewId, source) {
+            const dropZone = document.getElementById(dropZoneId);
+            const fileInput = document.getElementById(inputId);
+
+            if (!dropZone || !fileInput) return;
+
+            dropZone.addEventListener('click', () => fileInput.click());
             dropZone.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 dropZone.classList.add('drag-over');
@@ -1270,169 +1498,136 @@
             dropZone.addEventListener('drop', (e) => {
                 e.preventDefault();
                 dropZone.classList.remove('drag-over');
-                handleScreenshotDrop(e.dataTransfer.files[0], 'main');
-            });
-
-            screenshotInput.addEventListener('change', (e) => {
-                if (e.target.files[0]) {
-                    handleScreenshotDrop(e.target.files[0], 'main');
+                if (e.dataTransfer.files[0]) {
+                    handleScreenshotDrop(e.dataTransfer.files[0], source);
                 }
             });
 
-            const editDropZone = document.getElementById('editDropZone');
-            const editScreenshotInput = document.getElementById('editScreenshotInput');
-
-            editDropZone.addEventListener('click', () => editScreenshotInput.click());
-            editDropZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                editDropZone.classList.add('drag-over');
-            });
-            editDropZone.addEventListener('dragleave', () => editDropZone.classList.remove('drag-over'));
-            editDropZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                editDropZone.classList.remove('drag-over');
-                handleScreenshotDrop(e.dataTransfer.files[0], 'edit');
-            });
-
-            editScreenshotInput.addEventListener('change', (e) => {
+            fileInput.addEventListener('change', (e) => {
                 if (e.target.files[0]) {
-                    handleScreenshotDrop(e.target.files[0], 'edit');
-                }
-            });
-
-            // Design reference drop zones
-            const dropZoneDesignRef = document.getElementById('dropZoneDesignRef');
-            const designRefInput = document.getElementById('designRefInput');
-
-            dropZoneDesignRef.addEventListener('click', () => designRefInput.click());
-            dropZoneDesignRef.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropZoneDesignRef.classList.add('drag-over');
-            });
-            dropZoneDesignRef.addEventListener('dragleave', () => dropZoneDesignRef.classList.remove('drag-over'));
-            dropZoneDesignRef.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropZoneDesignRef.classList.remove('drag-over');
-                handleScreenshotDrop(e.dataTransfer.files[0], 'mainDesignRef');
-            });
-
-            designRefInput.addEventListener('change', (e) => {
-                if (e.target.files[0]) {
-                    handleScreenshotDrop(e.target.files[0], 'mainDesignRef');
-                }
-            });
-
-            const editDropZoneDesignRef = document.getElementById('editDropZoneDesignRef');
-            const editDesignRefInput = document.getElementById('editDesignRefInput');
-
-            editDropZoneDesignRef.addEventListener('click', () => editDesignRefInput.click());
-            editDropZoneDesignRef.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                editDropZoneDesignRef.classList.add('drag-over');
-            });
-            editDropZoneDesignRef.addEventListener('dragleave', () => editDropZoneDesignRef.classList.remove('drag-over'));
-            editDropZoneDesignRef.addEventListener('drop', (e) => {
-                e.preventDefault();
-                editDropZoneDesignRef.classList.remove('drag-over');
-                handleScreenshotDrop(e.dataTransfer.files[0], 'editDesignRef');
-            });
-
-            editDesignRefInput.addEventListener('change', (e) => {
-                if (e.target.files[0]) {
-                    handleScreenshotDrop(e.target.files[0], 'editDesignRef');
+                    handleScreenshotDrop(e.target.files[0], source);
                 }
             });
         }
 
+        function setupDropZones() {
+            // Setup all four drop zones using the helper
+            setupDropZone('dropZone', 'screenshotInput', 'screenshotPreview', 'main');
+            setupDropZone('editDropZone', 'editScreenshotInput', 'editScreenshotPreview', 'edit');
+            setupDropZone('dropZoneDesignRef', 'designRefInput', 'designRefPreview', 'mainDesignRef');
+            setupDropZone('editDropZoneDesignRef', 'editDesignRefInput', 'editDesignRefPreview', 'editDesignRef');
+
+        }
+
+        // ========== IMAGE HANDLING ==========
+        /**
+         * Compress image to reduce file size
+         * @param {string} imageData - Base64 image data
+         * @param {Function} callback - Called with compressed data URL
+         */
         function compressImage(imageData, callback) {
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
+                let { width, height } = img;
 
-                if (width > 1200) {
-                    height = Math.round((height * 1200) / width);
-                    width = 1200;
+                // Resize if too wide
+                if (width > CONFIG.IMAGE_MAX_WIDTH) {
+                    height = Math.round((height * CONFIG.IMAGE_MAX_WIDTH) / width);
+                    width = CONFIG.IMAGE_MAX_WIDTH;
                 }
 
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                callback(canvas.toDataURL('image/jpeg', 0.7));
+                callback(canvas.toDataURL('image/jpeg', CONFIG.IMAGE_JPEG_QUALITY));
             };
             img.src = imageData;
         }
 
+        /**
+         * Render screenshot preview in a container
+         * @param {string} previewId - Preview element ID
+         * @param {string} imageData - Base64 image data
+         * @param {Function} deleteHandler - Called when delete button is clicked
+         */
+        function renderScreenshotPreview(previewId, imageData, deleteHandler) {
+            const preview = document.getElementById(previewId);
+            if (!preview) return;
+
+            if (!imageData) {
+                preview.innerHTML = '';
+                return;
+            }
+
+            preview.innerHTML = `
+                <div class="screenshot-container">
+                    <img src="${imageData}" class="${previewId.includes('edit') ? 'modal-screenshot-preview' : 'screenshot-preview'}" alt="screenshot" onclick="expandScreenshot('${imageData}')">
+                    <div class="screenshot-overlay">
+                        <button class="btn-delete-screenshot" onclick="event.stopPropagation(); ${deleteHandler}()" title="Delete">×</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Handle screenshot/design reference upload via drop or file input
+         * @param {File} file - The image file
+         * @param {string} source - Source identifier ('main', 'edit', 'mainDesignRef', 'editDesignRef')
+         */
         function handleScreenshotDrop(file, source) {
             if (!file.type.startsWith('image/')) {
-                alert('Please drop an image file');
+                showConfirm('Please drop an image file', 'Invalid File', 'OK', null);
                 return;
             }
 
             const reader = new FileReader();
             reader.onload = (e) => {
                 compressImage(e.target.result, (compressedData) => {
+                    // Update state variables directly based on source
                     if (source === 'main') {
                         currentScreenshot = compressedData;
-                        const preview = document.getElementById('screenshotPreview');
-                        preview.innerHTML = `
-                            <div class="screenshot-container">
-                                <img src="${currentScreenshot}" class="screenshot-preview" alt="screenshot" onclick="expandScreenshot('${currentScreenshot}')">
-                                <div class="screenshot-overlay">
-                                    <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteFormScreenshot()" title="Delete screenshot">×</button>
-                                </div>
-                            </div>
-                        `;
+                        renderScreenshotPreview('screenshotPreview', compressedData, 'deleteFormScreenshot');
                     } else if (source === 'mainDesignRef') {
                         currentDesignRef = compressedData;
-                        const preview = document.getElementById('designRefPreview');
-                        preview.innerHTML = `
-                            <div class="screenshot-container">
-                                <img src="${currentDesignRef}" class="screenshot-preview" alt="design reference" onclick="expandScreenshot('${currentDesignRef}')">
-                                <div class="screenshot-overlay">
-                                    <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteFormDesignRef()" title="Delete design reference">×</button>
-                                </div>
-                            </div>
-                        `;
+                        renderScreenshotPreview('designRefPreview', compressedData, 'deleteFormDesignRef');
                     } else if (source === 'edit') {
                         editScreenshot = compressedData;
-                        const preview = document.getElementById('editScreenshotPreview');
-                        preview.innerHTML = `
-                            <div class="screenshot-container">
-                                <img src="${editScreenshot}" class="modal-screenshot-preview" alt="screenshot" onclick="expandScreenshot('${editScreenshot}')">
-                                <div class="screenshot-overlay">
-                                    <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteEditScreenshot()" title="Delete screenshot">×</button>
-                                </div>
-                            </div>
-                        `;
+                        renderScreenshotPreview('editScreenshotPreview', compressedData, 'deleteEditScreenshot');
                     } else if (source === 'editDesignRef') {
                         editDesignRef = compressedData;
-                        const preview = document.getElementById('editDesignRefPreview');
-                        preview.innerHTML = `
-                            <div class="screenshot-container">
-                                <img src="${editDesignRef}" class="modal-screenshot-preview" alt="design reference" onclick="expandScreenshot('${editDesignRef}')">
-                                <div class="screenshot-overlay">
-                                    <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteEditDesignRef()" title="Delete design reference">×</button>
-                                </div>
-                            </div>
-                        `;
+                        renderScreenshotPreview('editDesignRefPreview', compressedData, 'deleteEditDesignRef');
                     }
                 });
             };
             reader.readAsDataURL(file);
         }
 
+        // ========== FORM MANAGEMENT ==========
+        /**
+         * Check if an item has minimum required content
+         * @param {Object} item - The feedback item
+         * @returns {boolean} True if description or screenshot exists
+         */
         function isItemComplete(item) {
             return item.description.trim() !== '' || item.screenshot !== null;
         }
 
+        /**
+         * Add a new feedback item from form inputs
+         * Validates that at least description or screenshot is provided
+         */
         function addItem() {
-            const description = document.getElementById('description').value.trim();
+            const description = formFields.description.value.trim();
 
             if (!description && !currentScreenshot) {
-                alert('Please add a description or screenshot');
+                showConfirm(
+                    'Please add a description or take a screenshot to create a feedback item.',
+                    'Form Incomplete',
+                    'OK',
+                    null
+                );
                 return;
             }
 
@@ -1440,23 +1635,23 @@
 
             const item = {
                 id: Date.now(),
-                fileLocation: document.getElementById('fileLocation').value.trim(),
-                url: document.getElementById('url').value.trim(),
-                severity: document.getElementById('severity').value,
-                stepsToReproduce: document.getElementById('stepsToReproduce').value.trim(),
-                expectedBehavior: document.getElementById('expectedBehavior').value.trim(),
+                fileLocation: formFields.fileLocation.value.trim(),
+                url: formFields.url.value.trim(),
+                severity: formFields.severity.value,
+                stepsToReproduce: formFields.stepsToReproduce.value.trim(),
+                expectedBehavior: formFields.expectedBehavior.value.trim(),
                 description: description,
-                errorMessages: document.getElementById('errorMessages').value.trim(),
+                errorMessages: formFields.errorMessages.value.trim(),
                 screenshot: currentScreenshot,
                 designRef: currentDesignRef,
                 tags: tags,
-                frequency: document.getElementById('frequency').value
+                frequency: formFields.frequency.value
             };
 
             items.push(item);
             saveToStorage();
             renderItems();
-            updatePreview();
+            debouncePreviewUpdate();
             clearForm();
 
             // Focus on description field for next item
@@ -1464,37 +1659,131 @@
             showSuccessMessage('Item added! Ready for the next one.');
         }
 
+        /**
+         * Clear all form inputs and reset to initial state
+         */
         function clearForm() {
-            document.getElementById('description').value = '';
-            document.getElementById('fileLocation').value = '';
-            document.getElementById('url').value = '';
-            document.getElementById('severity').value = 'Medium';
-            document.getElementById('stepsToReproduce').value = '';
-            document.getElementById('expectedBehavior').value = '';
-            document.getElementById('errorMessages').value = '';
-            document.getElementById('screenshotInput').value = '';
-            document.getElementById('screenshotPreview').innerHTML = '';
-            document.getElementById('designRefInput').value = '';
-            document.getElementById('designRefPreview').innerHTML = '';
-            document.getElementById('frequency').value = '';
+            formFields.description.value = '';
+            formFields.fileLocation.value = '';
+            formFields.url.value = '';
+            formFields.severity.value = 'Medium';
+            formFields.stepsToReproduce.value = '';
+            formFields.expectedBehavior.value = '';
+            formFields.errorMessages.value = '';
+            formFields.screenshotInput.value = '';
+            formFields.screenshotPreview.innerHTML = '';
+            formFields.designRefInput.value = '';
+            formFields.designRefPreview.innerHTML = '';
+            formFields.frequency.value = '';
             document.querySelectorAll('input[name="tag"]').forEach(el => el.checked = false);
             currentScreenshot = null;
             currentDesignRef = null;
-            document.getElementById('description').focus();
+            clearFormAutoSave();
+            formFields.description.focus();
         }
 
-        function deleteItem(id) {
-            const deletedItem = items.find(item => item.id === id);
-            if (deletedItem) {
-                undoStack.push(deletedItem);
-                updateUndoButton();
+        /**
+         * Save form state to localStorage (auto-save on input)
+         */
+        function saveFormState() {
+            const formState = {
+                description: formFields.description.value,
+                fileLocation: formFields.fileLocation.value,
+                url: formFields.url.value,
+                severity: formFields.severity.value,
+                stepsToReproduce: formFields.stepsToReproduce.value,
+                expectedBehavior: formFields.expectedBehavior.value,
+                errorMessages: formFields.errorMessages.value,
+                frequency: formFields.frequency.value,
+                tags: Array.from(document.querySelectorAll('input[name="tag"]:checked')).map(el => el.value),
+                hasScreenshot: !!currentScreenshot,
+                hasDesignRef: !!currentDesignRef
+            };
+            localStorage.setItem(CONFIG.FORM_AUTOSAVE_KEY, JSON.stringify(formState));
+        }
+
+        /**
+         * Load form state from localStorage (called on page load)
+         */
+        function restoreFormState() {
+            const saved = localStorage.getItem(CONFIG.FORM_AUTOSAVE_KEY);
+            if (!saved) return;
+
+            try {
+                const formState = JSON.parse(saved);
+                if (formState.description) {
+                    formFields.description.value = formState.description;
+                    formFields.fileLocation.value = formState.fileLocation || '';
+                    formFields.url.value = formState.url || '';
+                    formFields.severity.value = formState.severity || 'Medium';
+                    formFields.stepsToReproduce.value = formState.stepsToReproduce || '';
+                    formFields.expectedBehavior.value = formState.expectedBehavior || '';
+                    formFields.errorMessages.value = formState.errorMessages || '';
+                    formFields.frequency.value = formState.frequency || '';
+
+                    // Restore tags
+                    document.querySelectorAll('input[name="tag"]').forEach(el => {
+                        el.checked = (formState.tags || []).includes(el.value);
+                    });
+
+                    showSuccessMessage('📝 Recovered unsaved form data');
+                }
+            } catch (e) {
+                console.error('Failed to restore form state:', e);
             }
-            items = items.filter(item => item.id !== id);
-            saveToStorage();
-            renderItems();
-            updatePreview();
         }
 
+        /**
+         * Clear saved form state
+         */
+        function clearFormAutoSave() {
+            localStorage.removeItem(CONFIG.FORM_AUTOSAVE_KEY);
+        }
+
+        /**
+         * Debounced auto-save handler for form inputs
+         */
+        function autoSaveFormState() {
+            clearTimeout(formAutoSaveTimeout);
+            formAutoSaveTimeout = setTimeout(() => {
+                saveFormState();
+            }, 1000); // Save after 1 second of inactivity
+        }
+
+        // ========== ITEM MANAGEMENT ==========
+        /**
+         * Delete an item by ID with undo support
+         * Pushes deleted item to undo stack before removal
+         * @param {number} id - The item ID to delete
+         */
+        function deleteItem(id) {
+            const item = items.find(item => item.id === id);
+            if (item) {
+                showConfirm(
+                    `Delete "${item.description.substring(0, 50)}${item.description.length > 50 ? '...' : ''}"?`,
+                    'Delete Feedback Item?',
+                    'Delete',
+                    () => {
+                        const deletedItem = items.find(i => i.id === id);
+                        if (deletedItem) {
+                            undoStack.push(deletedItem);
+                            updateUndoButton();
+                        }
+                        items = items.filter(i => i.id !== id);
+                        saveToStorage();
+                        renderItems();
+                        debouncePreviewUpdate();
+                        showSuccessMessage('Item deleted. Click "Undo delete" to recover.');
+                    }
+                );
+            }
+        }
+
+        /**
+         * Open edit modal for an item
+         * Populates all form fields with item data
+         * @param {number} id - The item ID to edit
+         */
         function openEditModal(id) {
             editingIndex = items.findIndex(item => item.id === id);
             const item = items[editingIndex];
@@ -1516,37 +1805,16 @@
             editScreenshot = item.screenshot;
             editDesignRef = item.designRef || null;
 
-            const preview = document.getElementById('editScreenshotPreview');
-            if (item.screenshot) {
-                preview.innerHTML = `
-                    <div class="screenshot-container">
-                        <img src="${item.screenshot}" class="modal-screenshot-preview" alt="screenshot" onclick="expandScreenshot('${item.screenshot}')">
-                        <div class="screenshot-overlay">
-                            <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteEditScreenshot()" title="Delete screenshot">×</button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                preview.innerHTML = '';
-            }
-
-            const designRefPreview = document.getElementById('editDesignRefPreview');
-            if (item.designRef) {
-                designRefPreview.innerHTML = `
-                    <div class="screenshot-container">
-                        <img src="${item.designRef}" class="modal-screenshot-preview" alt="design reference" onclick="expandScreenshot('${item.designRef}')">
-                        <div class="screenshot-overlay">
-                            <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteEditDesignRef()" title="Delete design reference">×</button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                designRefPreview.innerHTML = '';
-            }
+            // Render screenshots using helper
+            renderScreenshotPreview('editScreenshotPreview', item.screenshot, 'deleteEditScreenshot');
+            renderScreenshotPreview('editDesignRefPreview', item.designRef, 'deleteEditDesignRef');
 
             document.getElementById('editModal').classList.add('open');
         }
 
+        /**
+         * Close the edit modal and clear editing state
+         */
         function closeEditModal() {
             document.getElementById('editModal').classList.remove('open');
             editingIndex = null;
@@ -1554,9 +1822,26 @@
             document.getElementById('editScreenshotInput').value = '';
         }
 
+        /**
+         * Save changes to the item being edited
+         * Updates item in array and re-renders views
+         */
         function saveEdit() {
+            const description = document.getElementById('editDescription').value.trim();
+
+            // Validate that at least description or screenshot exists
+            if (!description && !editScreenshot) {
+                showConfirm(
+                    'Please add a description or screenshot to save this item.',
+                    'Form Incomplete',
+                    'OK',
+                    null
+                );
+                return;
+            }
+
             const item = items[editingIndex];
-            item.description = document.getElementById('editDescription').value.trim();
+            item.description = description;
             item.fileLocation = document.getElementById('editFileLocation').value.trim();
             item.url = document.getElementById('editUrl').value.trim();
             item.severity = document.getElementById('editSeverity').value;
@@ -1575,10 +1860,16 @@
 
             saveToStorage();
             renderItems();
-            updatePreview();
+            debouncePreviewUpdate();
             closeEditModal();
         }
 
+        // ========== SEARCH & RENDERING ==========
+        /**
+         * Filter items by search term across multiple fields
+         * @param {string} searchTerm - Search query
+         * @returns {Array} Filtered items or all items if search is empty
+         */
         function filterItems(searchTerm) {
             if (!searchTerm) return items;
 
@@ -1596,10 +1887,22 @@
             });
         }
 
+        /**
+         * Render feedback items to the DOM as expandable cards
+         * @param {Array} filteredItems - Optional filtered array; uses all items if null
+         */
         function renderItems(filteredItems = null) {
             const list = document.getElementById('itemsList');
             const resultsDiv = document.getElementById('searchResults');
             const displayItems = filteredItems !== null ? filteredItems : items;
+
+            // Show/hide Delete All button based on whether items exist
+            const deleteAllBtn = document.getElementById('deleteAllBtn');
+            if (items.length > 0) {
+                deleteAllBtn.style.display = 'block';
+            } else {
+                deleteAllBtn.style.display = 'none';
+            }
 
             if (displayItems.length === 0) {
                 list.innerHTML = '<div class="empty-state">No feedback items yet. Add one above.</div>';
@@ -1628,9 +1931,9 @@
                                 <span class="item-status ${statusClass}">${statusIcon}</span>
                             </span>
                             <div class="item-actions">
-                                <button class="btn-secondary" style="padding: 6px 10px; font-size: 11px;" onclick="event.stopPropagation(); copySingleIssue(${item.id})" title="Copy">Copy</button>
-                                <button class="btn-secondary" style="padding: 6px 10px; font-size: 11px;" onclick="event.stopPropagation(); openEditModal(${item.id})">Edit</button>
-                                <button class="btn-danger" style="padding: 6px 10px; font-size: 11px;" onclick="event.stopPropagation(); deleteItem(${item.id})">✕</button>
+                                <button class="btn-secondary" style="padding: 8px 12px; font-size: 12px;" onclick="event.stopPropagation(); copySingleIssue(${item.id})" aria-label="Copy issue ${index + 1}">Copy</button>
+                                <button class="btn-secondary" style="padding: 8px 12px; font-size: 12px;" onclick="event.stopPropagation(); openEditModal(${item.id})" aria-label="Edit issue ${index + 1}">Edit</button>
+                                <button class="btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="event.stopPropagation(); deleteItem(${item.id})" aria-label="Delete issue ${index + 1}">✕</button>
                             </div>
                         </div>
 
@@ -1684,27 +1987,75 @@
                 `;
             }).join('');
 
-            document.querySelectorAll('.item-card').forEach(card => {
-                card.addEventListener('dragstart', handleDragStart);
-                card.addEventListener('dragend', handleDragEnd);
-                card.addEventListener('dragover', handleDragOver);
-                card.addEventListener('drop', handleDrop);
-                card.addEventListener('dragleave', handleDragLeave);
-            });
+            // Attach drag handlers once to container (event delegation)
+            // Prevents memory leak of re-attaching to every item on each render
+            setupDragDelegation();
         }
 
+        /**
+         * Setup event delegation for drag handlers on items list
+         * Single listener on container handles all item cards
+         * Eliminates memory leak from re-attaching per-item listeners on every render
+         */
+        function setupDragDelegation() {
+            const itemsList = document.getElementById('itemsList');
+
+            // Only attach if not already attached (use flag to avoid duplicates)
+            if (itemsList._dragDelegationAttached) return;
+
+            itemsList.addEventListener('dragstart', (e) => {
+                const card = e.target.closest('.item-card');
+                if (card) handleDragStart.call(card, e);
+            });
+
+            itemsList.addEventListener('dragend', (e) => {
+                const card = e.target.closest('.item-card');
+                if (card) handleDragEnd.call(card, e);
+            });
+
+            itemsList.addEventListener('dragover', (e) => {
+                const card = e.target.closest('.item-card');
+                if (card) handleDragOver.call(card, e);
+            });
+
+            itemsList.addEventListener('drop', (e) => {
+                const card = e.target.closest('.item-card');
+                if (card) handleDrop.call(card, e);
+            });
+
+            itemsList.addEventListener('dragleave', (e) => {
+                const card = e.target.closest('.item-card');
+                if (card) handleDragLeave.call(card, e);
+            });
+
+            itemsList._dragDelegationAttached = true;
+        }
+
+        // ========== DRAG & DROP ==========
         let draggedElement = null;
 
+        /**
+         * Handle drag start event on item cards
+         * @param {DragEvent} e - The drag event
+         */
         function handleDragStart(e) {
             draggedElement = this;
             this.classList.add('dragging');
         }
 
+        /**
+         * Handle drag end event - cleanup visual state
+         * @param {DragEvent} e - The drag event
+         */
         function handleDragEnd(e) {
             this.classList.remove('dragging');
             document.querySelectorAll('.item-card').forEach(card => card.classList.remove('drag-over'));
         }
 
+        /**
+         * Handle drag over event - allow drop
+         * @param {DragEvent} e - The drag event
+         */
         function handleDragOver(e) {
             e.preventDefault();
             if (draggedElement !== this) {
@@ -1712,10 +2063,19 @@
             }
         }
 
+        /**
+         * Handle drag leave event - remove visual indicator
+         * @param {DragEvent} e - The drag event
+         */
         function handleDragLeave(e) {
             this.classList.remove('drag-over');
         }
 
+        /**
+         * Handle drop event - reorder items
+         * Swaps the position of dragged and target items in the array
+         * @param {DragEvent} e - The drag event
+         */
         function handleDrop(e) {
             e.preventDefault();
             this.classList.remove('drag-over');
@@ -1729,15 +2089,26 @@
                 [items[draggedIndex], items[targetIndex]] = [items[targetIndex], items[draggedIndex]];
                 saveToStorage();
                 renderItems();
-                updatePreview();
+                debouncePreviewUpdate();
             }
         }
 
+        // ========== EXPORT & UTILITIES ==========
+        /**
+         * Get current timestamp in ISO 8601 format
+         * @returns {string} ISO timestamp string
+         */
         function getTimestamp() {
             const now = new Date();
             return now.toISOString();
         }
 
+        /**
+         * Generate complete markdown report of all feedback items
+         * Includes timestamp, file locations, severity, screenshots references
+         * Empty fields are omitted to optimize token usage for Claude Code
+         * @returns {string} Formatted markdown text
+         */
         function generateMarkdown() {
             if (items.length === 0) {
                 return '# Claude Code Feedback\n\nNo feedback items yet.';
@@ -1774,23 +2145,60 @@
             return markdown;
         }
 
-        function updatePreview() {
-            const preview = document.getElementById('previewMarkdown');
-            preview.textContent = generateMarkdown();
+        /**
+         * Debounced markdown update - waits 300ms before regenerating
+         * Prevents expensive recalculation on every small change
+         * Only regenerates if items array changed (via version tracking)
+         */
+        function debouncePreviewUpdate() {
+            clearTimeout(previewUpdateTimeout);
+            previewUpdateTimeout = setTimeout(() => {
+                updatePreview();
+            }, 300);
         }
 
+        /**
+         * Update the preview pane with generated markdown
+         * Only regenerates if items content actually changed
+         */
+        function updatePreview() {
+            // Check if items actually changed to avoid unnecessary regeneration
+            const itemsVersion = JSON.stringify(items.map(i => ({ id: i.id, description: i.description, fileLocation: i.fileLocation, severity: i.severity, tags: i.tags })));
+            if (itemsVersion === lastItemsVersion && cachedMarkdown) {
+                return; // No changes, skip regeneration
+            }
+
+            const markdown = generateMarkdown();
+            cachedMarkdown = markdown;
+            lastItemsVersion = itemsVersion;
+
+            const preview = document.getElementById('previewMarkdown');
+            preview.textContent = markdown;
+        }
+
+        /**
+         * Open the export options modal
+         * Validates that at least one item exists before opening
+         */
         function openExportModal() {
             if (items.length === 0) {
                 alert('Add at least one feedback item first');
                 return;
             }
-            document.getElementById('exportModal').classList.add('open');
+            setModalState('exportModal', true);
         }
 
+        /**
+         * Close the export modal
+         */
         function closeExportModal() {
-            document.getElementById('exportModal').classList.remove('open');
+            setModalState('exportModal', false);
         }
 
+        /**
+         * Copy generated markdown to clipboard
+         * Shows success message on completion
+         */
         function copyMarkdown() {
             const markdown = generateMarkdown();
             navigator.clipboard.writeText(markdown).then(() => {
@@ -1798,11 +2206,18 @@
             });
         }
 
+        /**
+         * Copy markdown and close export modal
+         */
         function copyAndCloseExport() {
             copyMarkdown();
             closeExportModal();
         }
 
+        /**
+         * Generate and download zip file with markdown and all screenshots
+         * Creates screenshots folder with numbered image files
+         */
         async function downloadZip() {
             const zip = new JSZip();
 
@@ -1840,19 +2255,32 @@
             });
         }
 
+        /**
+         * Download zip and close export modal
+         */
         function downloadZipAndClose() {
             downloadZip();
             closeExportModal();
         }
 
+        /**
+         * Show temporary success message to user
+         * Auto-hides after CONFIG.SUCCESS_MESSAGE_DURATION ms
+         * @param {string} msg - Message text to display
+         */
         function showSuccessMessage(msg) {
             const container = document.getElementById('successMessage');
             container.innerHTML = `<div class="success-message">${msg}</div>`;
             setTimeout(() => {
                 container.innerHTML = '';
-            }, 3000);
+            }, CONFIG.SUCCESS_MESSAGE_DURATION);
         }
 
+        /**
+         * Escape HTML special characters to prevent XSS
+         * @param {string} text - Text to escape
+         * @returns {string} Escaped text safe for HTML context
+         */
         function escapeHtml(text) {
             const map = {
                 '&': '&amp;',
@@ -1864,6 +2292,10 @@
             return text.replace(/[&<>"']/g, m => map[m]);
         }
 
+        /**
+         * Open modal to view screenshot at full size
+         * @param {string} screenshotData - Base64 image data
+         */
         function expandScreenshot(screenshotData) {
             const modal = document.getElementById('expandedScreenshotModal');
             const img = document.getElementById('expandedScreenshotImage');
@@ -1871,16 +2303,26 @@
             modal.classList.add('open');
         }
 
+        /**
+         * Close the expanded screenshot modal
+         */
         function closeExpandedScreenshot() {
             const modal = document.getElementById('expandedScreenshotModal');
             modal.classList.remove('open');
         }
 
+        /**
+         * Delete a screenshot from a saved item
+         * Prompts user for confirmation before deletion
+         * @param {number} id - The item ID
+         * @param {string} type - 'main' for problem screenshot, 'design' for design reference
+         */
         function deleteScreenshot(id, type = 'main') {
             const item = items.find(i => i.id === id);
             if (item) {
-                const message = type === 'design' ? 'Delete design reference?' : 'Delete screenshot?';
-                if (confirm(message)) {
+                const message = type === 'design' ? 'This will permanently remove the design reference.' : 'This will permanently remove the screenshot.';
+                const title = type === 'design' ? 'Delete Design Reference?' : 'Delete Screenshot?';
+                showConfirm(message, title, 'Delete', () => {
                     if (type === 'design') {
                         item.designRef = null;
                     } else {
@@ -1888,35 +2330,49 @@
                     }
                     saveToStorage();
                     renderItems();
-                    updatePreview();
+                    debouncePreviewUpdate();
+                });
+            }
+        }
+
+        /**
+         * Generic screenshot deletion handler
+         * @param {string} type - 'screenshot' or 'designRef'
+         * @param {string} context - 'form' or 'edit'
+         */
+        function deleteScreenshotFromForm(type, context) {
+            const isDesignRef = type === 'designRef';
+            const prefix = context === 'edit' ? 'edit' : '';
+            const varName = `${prefix}${isDesignRef ? 'DesignRef' : 'Screenshot'}`;
+            const inputId = `${prefix}${isDesignRef ? 'DesignRef' : 'Screenshot'}Input`;
+            const previewId = `${prefix}${isDesignRef ? 'DesignRef' : 'Screenshot'}Preview`;
+
+            showConfirm(
+                `This will remove the ${isDesignRef ? 'design reference' : 'screenshot'} from the form.`,
+                `Delete ${isDesignRef ? 'Design Reference' : 'Screenshot'}?`,
+                'Delete',
+                () => {
+                    window[varName] = null;
+                    document.getElementById(inputId).value = '';
+                    document.getElementById(previewId).innerHTML = '';
                 }
-            }
+            );
         }
 
-        function deleteFormScreenshot() {
-            if (confirm('Delete this screenshot?')) {
-                currentScreenshot = null;
-                document.getElementById('screenshotInput').value = '';
-                document.getElementById('screenshotPreview').innerHTML = '';
-            }
-        }
+        // Wrapper functions for backwards compatibility with HTML onclick handlers
+        function deleteFormScreenshot() { deleteScreenshotFromForm('screenshot', 'form'); }
+        function deleteEditScreenshot() { deleteScreenshotFromForm('screenshot', 'edit'); }
+        function deleteFormDesignRef() { deleteScreenshotFromForm('designRef', 'form'); }
+        function deleteEditDesignRef() { deleteScreenshotFromForm('designRef', 'edit'); }
 
-        function deleteEditScreenshot() {
-            if (confirm('Delete this screenshot?')) {
-                editScreenshot = null;
-                document.getElementById('editScreenshotInput').value = '';
-                document.getElementById('editScreenshotPreview').innerHTML = '';
-            }
-        }
-
-        function deleteFormDesignRef() {
-            if (confirm('Delete design reference?')) {
-                currentDesignRef = null;
-                document.getElementById('designRefInput').value = '';
-                document.getElementById('designRefPreview').innerHTML = '';
-            }
-        }
-
+        // ========== TEMPLATES ==========
+        /**
+         * Generate markdown for a single feedback item
+         * Used for quick copy of individual issues
+         * @param {Object} item - The feedback item
+         * @param {number} itemIndex - Index in items array
+         * @returns {string} Markdown text for single item
+         */
         function generateSingleIssueMarkdown(item, itemIndex) {
             let markdown = `## Issue\n\n`;
 
@@ -1939,6 +2395,10 @@
             return markdown;
         }
 
+        /**
+         * Copy a single issue's markdown to clipboard
+         * @param {number} id - The item ID to copy
+         */
         function copySingleIssue(id) {
             const item = items.find(i => i.id === id);
             if (item) {
@@ -1949,6 +2409,11 @@
             }
         }
 
+        /**
+         * Apply a template to the form
+         * Prefills fields with template defaults
+         * @param {string} templateName - Name of template to apply
+         */
         function applyTemplate(templateName) {
             const template = TEMPLATES[templateName];
             document.getElementById('description').value = template.description;
@@ -1964,18 +2429,35 @@
             showSuccessMessage(`Template "${templateName}" applied!`);
         }
 
+        // ========== UNDO FUNCTIONALITY ==========
+        /**
+         * Restore the last deleted item(s) from undo stack
+         * Handles both single item and batch delete restores
+         */
         function undoDelete() {
             if (undoStack.length > 0) {
-                const restoredItem = undoStack.pop();
-                items.push(restoredItem);
+                const entry = undoStack.pop();
+
+                if (entry.isBatchDelete) {
+                    // Restore all items from batch delete
+                    items = [...entry.items];
+                    showSuccessMessage(`Restored ${entry.items.length} item${entry.items.length !== 1 ? 's' : ''}.`);
+                } else {
+                    // Restore single item
+                    items.push(entry);
+                    showSuccessMessage('Item restored!');
+                }
+
                 saveToStorage();
                 renderItems();
-                updatePreview();
+                debouncePreviewUpdate();
                 updateUndoButton();
-                showSuccessMessage('Item restored!');
             }
         }
 
+        /**
+         * Update visibility of undo button based on undo stack state
+         */
         function updateUndoButton() {
             const undoContainer = document.getElementById('undoContainer');
             if (undoStack.length > 0) {
@@ -1985,14 +2467,45 @@
             }
         }
 
-        function deleteEditDesignRef() {
-            if (confirm('Delete design reference?')) {
-                editDesignRef = null;
-                document.getElementById('editDesignRefInput').value = '';
-                document.getElementById('editDesignRefPreview').innerHTML = '';
+        /**
+         * Delete all feedback items with confirmation and undo support
+         * All deleted items pushed to undo stack as a batch
+         */
+        function deleteAllItems() {
+            if (items.length === 0) {
+                showConfirm(
+                    'No feedback items to delete.',
+                    'Nothing to Delete',
+                    'OK',
+                    null
+                );
+                return;
             }
+
+            const count = items.length;
+            showConfirm(
+                `This will permanently delete all ${count} feedback item${count !== 1 ? 's' : ''}. You can undo this action.`,
+                'Delete All Items?',
+                'Delete All',
+                () => {
+                    // Save all items to undo stack as a batch
+                    // We'll save them as a special "batch delete" entry
+                    undoStack.push({
+                        isBatchDelete: true,
+                        items: [...items]
+                    });
+                    items = [];
+                    saveToStorage();
+                    renderItems();
+                    debouncePreviewUpdate();
+                    updateUndoButton();
+                    showSuccessMessage(`Deleted ${count} item${count !== 1 ? 's' : ''}. Click "Undo delete" to recover all.`);
+                }
+            );
         }
 
+        // ========== EVENT LISTENERS ==========
+        // Modal backdrop click handlers - close modal when clicking outside content
         document.getElementById('editModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeEditModal();
@@ -2011,7 +2524,19 @@
             }
         });
 
-        // Close expanded screenshot with Escape key
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cancelConfirm();
+            }
+        });
+
+        document.getElementById('helpModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeHelpModal();
+            }
+        });
+
+        // Keyboard shortcuts - Escape key closes expanded screenshot
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 const modal = document.getElementById('expandedScreenshotModal');

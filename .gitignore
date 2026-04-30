@@ -46,8 +46,25 @@ logs/
 *.temp
 .cache
 
+# Project-specific
+*.zip
+screenshots/
+exports/
+test-exports/
+*.mp4
+*.webm
+
+# Browser/LocalStorage testing
+.storage/
+*.db
+session-*
+
 # OS temp
 .AppleDouble
 .LSOverride
 desktop.ini
 ehthumbs.db
+
+# System
+.DS_Store
+Thumbs.db
