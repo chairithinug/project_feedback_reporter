@@ -1,0 +1,53 @@
+# OS files
+.DS_Store
+Thumbs.db
+*.ico
+.windows
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.env.local
+.project
+.classpath
+*.sublime-project
+*.sublime-workspace
+
+# Node (if ever added)
+node_modules/
+npm-debug.log
+package-lock.json
+yarn.lock
+
+# Python (if tools are added)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.venv
+
+# Build/Dist (if build process added)
+dist/
+build/
+*.min.js
+*.min.css
+
+# Logs
+*.log
+logs/
+
+# Temp files
+*.tmp
+*.temp
+.cache
+
+# OS temp
+.AppleDouble
+.LSOverride
+desktop.ini
+ehthumbs.db
