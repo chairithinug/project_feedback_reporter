@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Feedback Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .form-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 10;
+            margin-bottom: 20px;
+        }
+
+        .form-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        textarea {
+            min-height: 70px;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .drop-zone {
+            border: 2px dashed #0066cc;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .drop-zone:hover {
+            background: #f0f0f0;
+            border-color: #0052a3;
+        }
+
+        .drop-zone.drag-over {
+            background: #e3f2fd;
+            border-color: #0052a3;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .drop-zone-icon {
+            font-size: 32px;
+        }
+
+        .drop-zone-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .drop-zone-subtext {
+            color: #999;
+            font-size: 12px;
+        }
+
+        #screenshotInput {
+            display: none;
+        }
+
+        .screenshot-preview-container {
+            margin-top: 10px;
+        }
+
+        .screenshot-preview {
+            max-height: 160px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            object-fit: cover;
+            cursor: pointer;
+            width: 100%;
+            display: block;
+            transition: opacity 0.2s;
+        }
+
+        .screenshot-preview:hover {
+            opacity: 0.8;
+        }
+
+        .expandable-section {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            background: #f9f9f9;
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 14px;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .expandable-header:hover {
+            background: #f0f0f0;
+        }
+
+        .expandable-icon {
+            transition: transform 0.2s;
+        }
+
+        .expandable-icon.open {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            display: none;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+
+        .expandable-content.open {
+            display: block;
+        }
+
+        .expandable-content .form-group {
+            margin-bottom: 15px;
+        }
+
+        .expandable-content .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0052a3;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .keyboard-hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .items-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .items-section h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .item-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0;
+            margin-bottom: 16px;
+            cursor: move;
+            transition: all 0.2s;
+            draggable: true;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .item-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+
+        .item-card.dragging {
+            opacity: 0.5;
+            background: #e8e8e8;
+        }
+
+        .item-card.drag-over {
+            border-top: 3px solid #0066cc;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .item-number-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .item-status {
+            font-size: 16px;
+        }
+
+        .item-status.complete {
+            color: #28a745;
+        }
+
+        .item-status.incomplete {
+            color: #ff9800;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .item-body {
+            padding: 16px;
+        }
+
+        .item-summary {
+            margin-bottom: 12px;
+        }
+
+        .item-description {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        .item-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .item-toggle {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .item-toggle-btn {
+            background: none;
+            border: none;
+            color: #0066cc;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 0;
+        }
+
+        .item-toggle-btn:hover {
+            text-decoration: underline;
+        }
+
+        .item-details {
+            display: none;
+            padding: 12px 16px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+
+        .item-details.expanded {
+            display: block;
+        }
+
+        .item-detail-row {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .item-detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .item-detail-label {
+            font-weight: 600;
+            color: #666;
+            min-width: 100px;
+        }
+
+        .item-detail-value {
+            color: #333;
+            flex: 1;
+        }
+
+        .item-screenshots {
+            margin-top: 12px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .item-screenshot-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .item-screenshot-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .item-field {
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .item-field-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .item-field-value {
+            color: #333;
+            word-break: break-word;
+            white-space: pre-wrap;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .screenshot-container {
+            position: relative;
+            display: inline-block;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .item-screenshot {
+            max-height: 120px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            object-fit: cover;
+            cursor: pointer;
+            width: 100%;
+            display: block;
+            transition: opacity 0.2s;
+        }
+
+        .item-screenshot:hover {
+            opacity: 0.8;
+        }
+
+        .screenshot-overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 0 4px 0 0;
+            padding: 4px 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .screenshot-container:hover .screenshot-overlay {
+            opacity: 1;
+        }
+
+        .btn-delete-screenshot {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .btn-delete-screenshot:hover {
+            color: #ff6b6b;
+        }
+
+        .expanded-screenshot-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .expanded-screenshot-modal.open {
+            display: flex;
+        }
+
+        .expanded-screenshot-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .expanded-screenshot-content img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .expanded-screenshot-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .expanded-screenshot-close:hover {
+            color: #ccc;
+        }
+
+        .preview-section h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .preview-markdown {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+            max-height: 400px;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 30px 20px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            margin: auto;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .export-modal-content {
+            text-align: center;
+        }
+
+        .export-option {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .export-option h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .export-option p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .export-option button {
+            width: 100%;
+        }
+
+        .modal-form-group {
+            margin-bottom: 15px;
+        }
+
+        .modal-form-group label {
+            margin-bottom: 6px;
+        }
+
+        .modal-form-group input[type="text"],
+        .modal-form-group textarea,
+        .modal-form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .modal-form-group textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        .modal-drop-zone {
+            border: 2px dashed #0066cc;
+            border-radius: 8px;
+            padding: 25px 15px;
+            text-align: center;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-drop-zone:hover {
+            background: #f0f0f0;
+            border-color: #0052a3;
+        }
+
+        .modal-drop-zone.drag-over {
+            background: #e3f2fd;
+            border-color: #0052a3;
+        }
+
+        .modal-screenshot-preview {
+            max-height: 180px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            object-fit: cover;
+            cursor: pointer;
+            width: 100%;
+            display: block;
+            transition: opacity 0.2s;
+        }
+
+        .modal-screenshot-preview:hover {
+            opacity: 0.8;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .compression-note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div>
+                <h1>Claude Code Feedback</h1>
+                <p class="subtitle">Quick and easy feedback with optional details</p>
+            </div>
+
+            <div class="form-header">
+                <div class="form-group">
+                    <label style="margin-bottom: 10px;">Quick Templates</label>
+                    <div id="templateButtons" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 15px;"></div>
+                </div>
+
+                <div id="undoContainer" style="margin-bottom: 15px; display: none;">
+                    <button class="btn-secondary" style="width: 100%; padding: 8px;" onclick="undoDelete()">↶ Undo delete</button>
+                </div>
+
+                <div class="form-group">
+                    <label>What's Happening</label>
+                    <textarea id="description" placeholder="Describe what's broken, what should happen, error details..." onkeydown="handleFormKeydown(event)"></textarea>
+                    <div class="keyboard-hint">💡 Ctrl+Enter to submit, Escape to clear, Ctrl+K to search items</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Screenshot</label>
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-zone-icon">📸</div>
+                        <div class="drop-zone-text">Drop screenshot here or click to select</div>
+                        <div class="drop-zone-subtext">PNG, JPG, GIF</div>
+                    </div>
+                    <input type="file" id="screenshotInput" accept="image/*">
+                    <div id="screenshotPreview" class="screenshot-preview-container"></div>
+                    <div class="compression-note">Screenshots are automatically optimized</div>
+                </div>
+
+                <div class="expandable-section">
+                    <div class="expandable-header" onclick="toggleSection(this)">
+                        + Additional Details
+                        <span class="expandable-icon">▼</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="form-group">
+                            <label>File Location</label>
+                            <input type="text" id="fileLocation" placeholder="e.g., src/components/Button.tsx">
+                        </div>
+
+                        <div class="form-group">
+                            <label>URL</label>
+                            <input type="text" id="url" placeholder="e.g., https://app.example.com/settings">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Severity</label>
+                            <select id="severity">
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Category/Tags</label>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" name="tag" value="frontend"> Frontend
+                                </label>
+                                <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" name="tag" value="backend"> Backend
+                                </label>
+                                <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" name="tag" value="UX"> UX
+                                </label>
+                                <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" name="tag" value="performance"> Performance
+                                </label>
+                                <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" name="tag" value="crash"> Crash
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Frequency</label>
+                            <select id="frequency">
+                                <option value="">Not specified</option>
+                                <option value="Always">Always</option>
+                                <option value="Sometimes">Sometimes</option>
+                                <option value="Once">Once</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Steps to Reproduce</label>
+                            <textarea id="stepsToReproduce" placeholder="1. Click the button&#10;2. See the error&#10;3. ..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Expected Behavior</label>
+                            <textarea id="expectedBehavior" placeholder="What should happen instead?"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Error Messages</label>
+                            <textarea id="errorMessages" placeholder="Stack traces, console errors, etc..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Design Reference Screenshot <span style="font-weight: 400; color: #999; font-size: 12px;">(optional — for UI/UX issues)</span></label>
+                            <div class="drop-zone" id="dropZoneDesignRef">
+                                <div class="drop-zone-icon">🎨</div>
+                                <div class="drop-zone-text">Drop design reference here or click to select</div>
+                                <div class="drop-zone-subtext">Mockup, wireframe, or expected design</div>
+                            </div>
+                            <input type="file" id="designRefInput" accept="image/*" style="display: none;">
+                            <div id="designRefPreview" class="screenshot-preview-container"></div>
+                            <div class="compression-note">Design screenshots are also automatically optimized</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="addItem()">Add Feedback Item</button>
+                    <button class="btn-secondary" onclick="clearForm()">Clear</button>
+                </div>
+            </div>
+
+            <div class="items-section">
+                <h3>Feedback Items</h3>
+                <div style="margin-bottom: 15px;">
+                    <input type="text" id="searchItems" placeholder="🔍 Search by description, file, or tag..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;">
+                    <div id="searchResults" style="font-size: 12px; color: #666; margin-top: 6px;"></div>
+                </div>
+                <div id="itemsList"></div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div>
+                <h3>Claude Code Ticket Preview</h3>
+                <p class="subtitle">Standardized format for Claude Code</p>
+            </div>
+            <div id="successMessage"></div>
+            <div class="preview-markdown" id="previewMarkdown"></div>
+            <div class="preview-actions">
+                <button class="btn-primary" onclick="openExportModal()">Export & Next Steps</button>
+                <button class="btn-secondary" onclick="copyMarkdown()">Copy Markdown</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h2>Edit Feedback Item</h2>
+            <div class="modal-form-group">
+                <label>What's Happening</label>
+                <textarea id="editDescription"></textarea>
+            </div>
+            <div class="modal-form-group">
+                <label>Screenshot</label>
+                <div class="modal-drop-zone" id="editDropZone">
+                    <div class="drop-zone-icon">📸</div>
+                    <div class="drop-zone-text">Drop screenshot here or click to select</div>
+                </div>
+                <input type="file" id="editScreenshotInput" accept="image/*" style="display: none;">
+                <div id="editScreenshotPreview"></div>
+            </div>
+
+            <div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">
+                <div class="modal-form-group">
+                    <label>File Location</label>
+                    <input type="text" id="editFileLocation">
+                </div>
+                <div class="modal-form-group">
+                    <label>URL</label>
+                    <input type="text" id="editUrl">
+                </div>
+                <div class="modal-form-group">
+                    <label>Severity</label>
+                    <select id="editSeverity">
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label>Category/Tags</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" name="editTag" value="frontend"> Frontend
+                        </label>
+                        <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" name="editTag" value="backend"> Backend
+                        </label>
+                        <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" name="editTag" value="UX"> UX
+                        </label>
+                        <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" name="editTag" value="performance"> Performance
+                        </label>
+                        <label style="font-weight: 400; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" name="editTag" value="crash"> Crash
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-form-group">
+                    <label>Frequency</label>
+                    <select id="editFrequency">
+                        <option value="">Not specified</option>
+                        <option value="Always">Always</option>
+                        <option value="Sometimes">Sometimes</option>
+                        <option value="Once">Once</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label>Steps to Reproduce</label>
+                    <textarea id="editStepsToReproduce"></textarea>
+                </div>
+                <div class="modal-form-group">
+                    <label>Expected Behavior</label>
+                    <textarea id="editExpectedBehavior"></textarea>
+                </div>
+                <div class="modal-form-group">
+                    <label>Error Messages</label>
+                    <textarea id="editErrorMessages"></textarea>
+                </div>
+                <div class="modal-form-group">
+                    <label>Design Reference Screenshot <span style="font-weight: 400; color: #999; font-size: 12px;">(optional)</span></label>
+                    <div class="modal-drop-zone" id="editDropZoneDesignRef">
+                        <div class="drop-zone-icon">🎨</div>
+                        <div class="drop-zone-text">Drop design reference here or click to select</div>
+                    </div>
+                    <input type="file" id="editDesignRefInput" accept="image/*" style="display: none;">
+                    <div id="editDesignRefPreview"></div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="saveEdit()">Save</button>
+                <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal" id="exportModal">
+        <div class="modal-content export-modal-content">
+            <h2>Export Your Feedback</h2>
+            <p style="color: #666; margin-bottom: 20px;">Choose how to send your feedback to Claude Code</p>
+
+            <div class="export-option">
+                <h3>📋 Simple: Copy & Paste</h3>
+                <p>Copy the markdown text and paste directly into Claude Code chat. Upload the screenshots folder separately.</p>
+                <button class="btn-primary" onclick="copyAndCloseExport()">Copy Markdown</button>
+            </div>
+
+            <div class="export-option">
+                <h3>📦 Complete: Download Zip</h3>
+                <p>Download a zip file with markdown + all screenshots. Upload the entire folder to Claude Code, then paste the markdown.</p>
+                <button class="btn-primary" onclick="downloadZipAndClose()">Download Zip</button>
+            </div>
+
+            <button class="btn-secondary" style="width: 100%; margin-top: 20px;" onclick="closeExportModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Expanded Screenshot Modal -->
+    <div class="expanded-screenshot-modal" id="expandedScreenshotModal">
+        <div class="expanded-screenshot-content">
+            <button class="expanded-screenshot-close" onclick="closeExpandedScreenshot()">×</button>
+            <img id="expandedScreenshotImage" alt="expanded screenshot">
+        </div>
+    </div>
+
+    <script>
+        let items = [];
+        let editingIndex = null;
+        let currentScreenshot = null;
+        let currentDesignRef = null;
+        let editScreenshot = null;
+        let editDesignRef = null;
+        let undoStack = [];
+
+        const TEMPLATES = {
+            'UI Bug': {
+                severity: 'High',
+                tags: ['frontend', 'UX'],
+                description: 'Visual issue or UI element not working as expected.',
+                frequency: 'Sometimes'
+            },
+            'Performance': {
+                severity: 'High',
+                tags: ['performance'],
+                description: 'Performance issue: slow loading, laggy interactions, or inefficient behavior.',
+                frequency: 'Sometimes'
+            },
+            'Crash': {
+                severity: 'Critical',
+                tags: ['crash', 'backend'],
+                description: 'Application crashes or throws an unhandled error.',
+                frequency: 'Sometimes'
+            },
+            'Typo': {
+                severity: 'Low',
+                tags: ['frontend'],
+                description: 'Spelling or grammatical error in text.',
+                frequency: 'Once'
+            },
+            'API Issue': {
+                severity: 'High',
+                tags: ['backend'],
+                description: 'API request fails, returns wrong data, or behaves unexpectedly.',
+                frequency: 'Sometimes'
+            }
+        };
+
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('feedbackItems');
+            if (saved) {
+                items = JSON.parse(saved);
+                renderItems();
+                updatePreview();
+            }
+            setupDropZones();
+
+            // Setup template buttons
+            const templateContainer = document.getElementById('templateButtons');
+            Object.keys(TEMPLATES).forEach(name => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-secondary';
+                btn.style.cssText = 'padding: 6px 12px; font-size: 12px;';
+                btn.textContent = name;
+                btn.onclick = () => applyTemplate(name);
+                templateContainer.appendChild(btn);
+            });
+
+            // Search functionality
+            document.getElementById('searchItems').addEventListener('input', (e) => {
+                const filtered = filterItems(e.target.value);
+                renderItems(filtered);
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl+K or Cmd+K: Focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    document.getElementById('searchItems').focus();
+                }
+                // Escape: Clear search
+                if (e.key === 'Escape' && document.activeElement.id === 'searchItems') {
+                    document.getElementById('searchItems').value = '';
+                    renderItems();
+                    document.activeElement.blur();
+                }
+            });
+        });
+
+        function handleFormKeydown(event) {
+            if (event.ctrlKey && event.key === 'Enter') {
+                event.preventDefault();
+                addItem();
+            } else if (event.key === 'Escape') {
+                clearForm();
+            }
+        }
+
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.expandable-icon');
+            content.classList.toggle('open');
+            icon.classList.toggle('open');
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('feedbackItems', JSON.stringify(items));
+        }
+
+        function setupDropZones() {
+            const dropZone = document.getElementById('dropZone');
+            const screenshotInput = document.getElementById('screenshotInput');
+
+            dropZone.addEventListener('click', () => screenshotInput.click());
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                handleScreenshotDrop(e.dataTransfer.files[0], 'main');
+            });
+
+            screenshotInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) {
+                    handleScreenshotDrop(e.target.files[0], 'main');
+                }
+            });
+
+            const editDropZone = document.getElementById('editDropZone');
+            const editScreenshotInput = document.getElementById('editScreenshotInput');
+
+            editDropZone.addEventListener('click', () => editScreenshotInput.click());
+            editDropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                editDropZone.classList.add('drag-over');
+            });
+            editDropZone.addEventListener('dragleave', () => editDropZone.classList.remove('drag-over'));
+            editDropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                editDropZone.classList.remove('drag-over');
+                handleScreenshotDrop(e.dataTransfer.files[0], 'edit');
+            });
+
+            editScreenshotInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) {
+                    handleScreenshotDrop(e.target.files[0], 'edit');
+                }
+            });
+
+            // Design reference drop zones
+            const dropZoneDesignRef = document.getElementById('dropZoneDesignRef');
+            const designRefInput = document.getElementById('designRefInput');
+
+            dropZoneDesignRef.addEventListener('click', () => designRefInput.click());
+            dropZoneDesignRef.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZoneDesignRef.classList.add('drag-over');
+            });
+            dropZoneDesignRef.addEventListener('dragleave', () => dropZoneDesignRef.classList.remove('drag-over'));
+            dropZoneDesignRef.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZoneDesignRef.classList.remove('drag-over');
+                handleScreenshotDrop(e.dataTransfer.files[0], 'mainDesignRef');
+            });
+
+            designRefInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) {
+                    handleScreenshotDrop(e.target.files[0], 'mainDesignRef');
+                }
+            });
+
+            const editDropZoneDesignRef = document.getElementById('editDropZoneDesignRef');
+            const editDesignRefInput = document.getElementById('editDesignRefInput');
+
+            editDropZoneDesignRef.addEventListener('click', () => editDesignRefInput.click());
+            editDropZoneDesignRef.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                editDropZoneDesignRef.classList.add('drag-over');
+            });
+            editDropZoneDesignRef.addEventListener('dragleave', () => editDropZoneDesignRef.classList.remove('drag-over'));
+            editDropZoneDesignRef.addEventListener('drop', (e) => {
+                e.preventDefault();
+                editDropZoneDesignRef.classList.remove('drag-over');
+                handleScreenshotDrop(e.dataTransfer.files[0], 'editDesignRef');
+            });
+
+            editDesignRefInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) {
+                    handleScreenshotDrop(e.target.files[0], 'editDesignRef');
+                }
+            });
+        }
+
+        function compressImage(imageData, callback) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > 1200) {
+                    height = Math.round((height * 1200) / width);
+                    width = 1200;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                callback(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.src = imageData;
+        }
+
+        function handleScreenshotDrop(file, source) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please drop an image file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                compressImage(e.target.result, (compressedData) => {
+                    if (source === 'main') {
+                        currentScreenshot = compressedData;
+                        const preview = document.getElementById('screenshotPreview');
+                        preview.innerHTML = `
+                            <div class="screenshot-container">
+                                <img src="${currentScreenshot}" class="screenshot-preview" alt="screenshot" onclick="expandScreenshot('${currentScreenshot}')">
+                                <div class="screenshot-overlay">
+                                    <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteFormScreenshot()" title="Delete screenshot">×</button>
+                                </div>
+                            </div>
+                        `;
+                    } else if (source === 'mainDesignRef') {
+                        currentDesignRef = compressedData;
+                        const preview = document.getElementById('designRefPreview');
+                        preview.innerHTML = `
+                            <div class="screenshot-container">
+                                <img src="${currentDesignRef}" class="screenshot-preview" alt="design reference" onclick="expandScreenshot('${currentDesignRef}')">
+                                <div class="screenshot-overlay">
+                                    <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteFormDesignRef()" title="Delete design reference">×</button>
+                                </div>
+                            </div>
+                        `;
+                    } else if (source === 'edit') {
+                        editScreenshot = compressedData;
+                        const preview = document.getElementById('editScreenshotPreview');
+                        preview.innerHTML = `
+                            <div class="screenshot-container">
+                                <img src="${editScreenshot}" class="modal-screenshot-preview" alt="screenshot" onclick="expandScreenshot('${editScreenshot}')">
+                                <div class="screenshot-overlay">
+                                    <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteEditScreenshot()" title="Delete screenshot">×</button>
+                                </div>
+                            </div>
+                        `;
+                    } else if (source === 'editDesignRef') {
+                        editDesignRef = compressedData;
+                        const preview = document.getElementById('editDesignRefPreview');
+                        preview.innerHTML = `
+                            <div class="screenshot-container">
+                                <img src="${editDesignRef}" class="modal-screenshot-preview" alt="design reference" onclick="expandScreenshot('${editDesignRef}')">
+                                <div class="screenshot-overlay">
+                                    <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteEditDesignRef()" title="Delete design reference">×</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function isItemComplete(item) {
+            return item.description.trim() !== '' || item.screenshot !== null;
+        }
+
+        function addItem() {
+            const description = document.getElementById('description').value.trim();
+
+            if (!description && !currentScreenshot) {
+                alert('Please add a description or screenshot');
+                return;
+            }
+
+            const tags = Array.from(document.querySelectorAll('input[name="tag"]:checked')).map(el => el.value);
+
+            const item = {
+                id: Date.now(),
+                fileLocation: document.getElementById('fileLocation').value.trim(),
+                url: document.getElementById('url').value.trim(),
+                severity: document.getElementById('severity').value,
+                stepsToReproduce: document.getElementById('stepsToReproduce').value.trim(),
+                expectedBehavior: document.getElementById('expectedBehavior').value.trim(),
+                description: description,
+                errorMessages: document.getElementById('errorMessages').value.trim(),
+                screenshot: currentScreenshot,
+                designRef: currentDesignRef,
+                tags: tags,
+                frequency: document.getElementById('frequency').value
+            };
+
+            items.push(item);
+            saveToStorage();
+            renderItems();
+            updatePreview();
+            clearForm();
+
+            // Focus on description field for next item
+            document.getElementById('description').focus();
+            showSuccessMessage('Item added! Ready for the next one.');
+        }
+
+        function clearForm() {
+            document.getElementById('description').value = '';
+            document.getElementById('fileLocation').value = '';
+            document.getElementById('url').value = '';
+            document.getElementById('severity').value = 'Medium';
+            document.getElementById('stepsToReproduce').value = '';
+            document.getElementById('expectedBehavior').value = '';
+            document.getElementById('errorMessages').value = '';
+            document.getElementById('screenshotInput').value = '';
+            document.getElementById('screenshotPreview').innerHTML = '';
+            document.getElementById('designRefInput').value = '';
+            document.getElementById('designRefPreview').innerHTML = '';
+            document.getElementById('frequency').value = '';
+            document.querySelectorAll('input[name="tag"]').forEach(el => el.checked = false);
+            currentScreenshot = null;
+            currentDesignRef = null;
+            document.getElementById('description').focus();
+        }
+
+        function deleteItem(id) {
+            const deletedItem = items.find(item => item.id === id);
+            if (deletedItem) {
+                undoStack.push(deletedItem);
+                updateUndoButton();
+            }
+            items = items.filter(item => item.id !== id);
+            saveToStorage();
+            renderItems();
+            updatePreview();
+        }
+
+        function openEditModal(id) {
+            editingIndex = items.findIndex(item => item.id === id);
+            const item = items[editingIndex];
+
+            document.getElementById('editDescription').value = item.description || '';
+            document.getElementById('editFileLocation').value = item.fileLocation || '';
+            document.getElementById('editUrl').value = item.url || '';
+            document.getElementById('editSeverity').value = item.severity || 'Medium';
+            document.getElementById('editStepsToReproduce').value = item.stepsToReproduce || '';
+            document.getElementById('editExpectedBehavior').value = item.expectedBehavior || '';
+            document.getElementById('editErrorMessages').value = item.errorMessages || '';
+            document.getElementById('editFrequency').value = item.frequency || '';
+
+            // Set tags
+            document.querySelectorAll('input[name="editTag"]').forEach(el => {
+                el.checked = (item.tags || []).includes(el.value);
+            });
+
+            editScreenshot = item.screenshot;
+            editDesignRef = item.designRef || null;
+
+            const preview = document.getElementById('editScreenshotPreview');
+            if (item.screenshot) {
+                preview.innerHTML = `
+                    <div class="screenshot-container">
+                        <img src="${item.screenshot}" class="modal-screenshot-preview" alt="screenshot" onclick="expandScreenshot('${item.screenshot}')">
+                        <div class="screenshot-overlay">
+                            <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteEditScreenshot()" title="Delete screenshot">×</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                preview.innerHTML = '';
+            }
+
+            const designRefPreview = document.getElementById('editDesignRefPreview');
+            if (item.designRef) {
+                designRefPreview.innerHTML = `
+                    <div class="screenshot-container">
+                        <img src="${item.designRef}" class="modal-screenshot-preview" alt="design reference" onclick="expandScreenshot('${item.designRef}')">
+                        <div class="screenshot-overlay">
+                            <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteEditDesignRef()" title="Delete design reference">×</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                designRefPreview.innerHTML = '';
+            }
+
+            document.getElementById('editModal').classList.add('open');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('open');
+            editingIndex = null;
+            editScreenshot = null;
+            document.getElementById('editScreenshotInput').value = '';
+        }
+
+        function saveEdit() {
+            const item = items[editingIndex];
+            item.description = document.getElementById('editDescription').value.trim();
+            item.fileLocation = document.getElementById('editFileLocation').value.trim();
+            item.url = document.getElementById('editUrl').value.trim();
+            item.severity = document.getElementById('editSeverity').value;
+            item.stepsToReproduce = document.getElementById('editStepsToReproduce').value.trim();
+            item.expectedBehavior = document.getElementById('editExpectedBehavior').value.trim();
+            item.errorMessages = document.getElementById('editErrorMessages').value.trim();
+            item.frequency = document.getElementById('editFrequency').value;
+            item.tags = Array.from(document.querySelectorAll('input[name="editTag"]:checked')).map(el => el.value);
+
+            if (editScreenshot) {
+                item.screenshot = editScreenshot;
+            }
+            if (editDesignRef) {
+                item.designRef = editDesignRef;
+            }
+
+            saveToStorage();
+            renderItems();
+            updatePreview();
+            closeEditModal();
+        }
+
+        function filterItems(searchTerm) {
+            if (!searchTerm) return items;
+
+            const term = searchTerm.toLowerCase();
+            return items.filter(item => {
+                const searchableText = [
+                    item.description,
+                    item.fileLocation,
+                    item.url,
+                    item.severity,
+                    (item.tags || []).join(' ')
+                ].join(' ').toLowerCase();
+
+                return searchableText.includes(term);
+            });
+        }
+
+        function renderItems(filteredItems = null) {
+            const list = document.getElementById('itemsList');
+            const resultsDiv = document.getElementById('searchResults');
+            const displayItems = filteredItems !== null ? filteredItems : items;
+
+            if (displayItems.length === 0) {
+                list.innerHTML = '<div class="empty-state">No feedback items yet. Add one above.</div>';
+                if (filteredItems !== null) {
+                    resultsDiv.textContent = 'No matches found';
+                }
+                return;
+            }
+
+            if (filteredItems !== null && filteredItems.length < items.length) {
+                resultsDiv.textContent = `${filteredItems.length} of ${items.length} items`;
+            } else {
+                resultsDiv.textContent = '';
+            }
+
+            list.innerHTML = displayItems.map((item, index) => {
+                const complete = isItemComplete(item);
+                const statusIcon = complete ? '✓' : '⚠';
+                const statusClass = complete ? 'complete' : 'incomplete';
+
+                return `
+                    <div class="item-card" draggable="true" id="item-${item.id}">
+                        <div class="item-header">
+                            <span class="item-number-badge">
+                                Item ${index + 1}
+                                <span class="item-status ${statusClass}">${statusIcon}</span>
+                            </span>
+                            <div class="item-actions">
+                                <button class="btn-secondary" style="padding: 6px 10px; font-size: 11px;" onclick="copySingleIssue(${item.id})" title="Copy">Copy</button>
+                                <button class="btn-secondary" style="padding: 6px 10px; font-size: 11px;" onclick="openEditModal(${item.id})">Edit</button>
+                                <button class="btn-danger" style="padding: 6px 10px; font-size: 11px;" onclick="deleteItem(${item.id})">✕</button>
+                            </div>
+                        </div>
+
+                        <div class="item-body">
+                            <div class="item-summary">
+                                ${item.description ? `<div class="item-description">${escapeHtml(item.description)}</div>` : ''}
+
+                                <div class="item-meta">
+                                    ${item.tags && item.tags.length > 0 ? `<div style="display: flex; gap: 4px; flex-wrap: wrap;">${item.tags.map(tag => `<span style="background: #e3f2fd; color: #0066cc; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 500;">${tag}</span>`).join('')}</div>` : ''}
+                                    ${item.frequency ? `<span style="background: #f0f0f0; padding: 3px 8px; border-radius: 12px;">⏱️ ${item.frequency}</span>` : ''}
+                                    ${item.severity !== 'Medium' ? `<span style="background: #fff3cd; color: #856404; padding: 3px 8px; border-radius: 12px; font-weight: 500;">${item.severity}</span>` : ''}
+                                </div>
+                            </div>
+
+                            ${(item.screenshot || item.designRef) ? `
+                                <div class="item-screenshots">
+                                    ${item.screenshot ? `
+                                        <div class="item-screenshot-wrapper">
+                                            <div class="item-screenshot-label">Problem</div>
+                                            <div class="screenshot-container" style="width: 80px; height: 60px;">
+                                                <img src="${item.screenshot}" class="item-screenshot" style="max-height: 60px; max-width: 80px; height: 60px; width: auto;" alt="screenshot" onclick="expandScreenshot('${item.screenshot}')">
+                                                <div class="screenshot-overlay">
+                                                    <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteScreenshot(${item.id}, 'main')" title="Delete">×</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                    ${item.designRef ? `
+                                        <div class="item-screenshot-wrapper">
+                                            <div class="item-screenshot-label">Design Ref</div>
+                                            <div class="screenshot-container" style="width: 80px; height: 60px;">
+                                                <img src="${item.designRef}" class="item-screenshot" style="max-height: 60px; max-width: 80px; height: 60px; width: auto;" alt="design reference" onclick="expandScreenshot('${item.designRef}')">
+                                                <div class="screenshot-overlay">
+                                                    <button class="btn-delete-screenshot" onclick="event.stopPropagation(); deleteScreenshot(${item.id}, 'design')" title="Delete">×</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+
+                            ${item.fileLocation || item.url || item.errorMessages ? `
+                                <div class="item-toggle">
+                                    <button class="item-toggle-btn" onclick="toggleItemDetails(${item.id})">
+                                        <span id="toggle-text-${item.id}">▼ Show details</span>
+                                    </button>
+                                </div>
+
+                                <div class="item-details" id="details-${item.id}">
+                                    ${item.fileLocation ? `<div class="item-detail-row"><span class="item-detail-label">File:</span><span class="item-detail-value">${escapeHtml(item.fileLocation)}</span></div>` : ''}
+                                    ${item.url ? `<div class="item-detail-row"><span class="item-detail-label">URL:</span><span class="item-detail-value">${escapeHtml(item.url)}</span></div>` : ''}
+                                    ${item.stepsToReproduce ? `<div class="item-detail-row"><span class="item-detail-label">Steps:</span><span class="item-detail-value">${escapeHtml(item.stepsToReproduce)}</span></div>` : ''}
+                                    ${item.expectedBehavior ? `<div class="item-detail-row"><span class="item-detail-label">Expected:</span><span class="item-detail-value">${escapeHtml(item.expectedBehavior)}</span></div>` : ''}
+                                    ${item.errorMessages ? `<div class="item-detail-row"><span class="item-detail-label">Errors:</span><span class="item-detail-value"><code style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">${escapeHtml(item.errorMessages.substring(0, 100))}</code></span></div>` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.querySelectorAll('.item-card').forEach(card => {
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+                card.addEventListener('dragover', handleDragOver);
+                card.addEventListener('drop', handleDrop);
+                card.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.item-card').forEach(card => card.classList.remove('drag-over'));
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            if (draggedElement !== this) {
+                this.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            if (draggedElement !== this) {
+                const draggedId = parseInt(draggedElement.id.replace('item-', ''));
+                const targetId = parseInt(this.id.replace('item-', ''));
+
+                const draggedIndex = items.findIndex(item => item.id === draggedId);
+                const targetIndex = items.findIndex(item => item.id === targetId);
+
+                [items[draggedIndex], items[targetIndex]] = [items[targetIndex], items[draggedIndex]];
+                saveToStorage();
+                renderItems();
+                updatePreview();
+            }
+        }
+
+        function getTimestamp() {
+            const now = new Date();
+            return now.toISOString();
+        }
+
+        function generateMarkdown() {
+            if (items.length === 0) {
+                return '# Claude Code Feedback\n\nNo feedback items yet.';
+            }
+
+            let markdown = `# Claude Code Feedback\n\n**Generated:** ${getTimestamp()}\n\n`;
+
+            items.forEach((item, index) => {
+                markdown += `## Issue ${index + 1}\n\n`;
+
+                markdown += `**File:** ${item.fileLocation || ''}\n`;
+                markdown += `**URL:** ${item.url || ''}\n`;
+                markdown += `**Severity:** ${item.severity}\n`;
+
+                markdown += `\n**Steps to Reproduce:**\n${item.stepsToReproduce || ''}\n`;
+                markdown += `\n**Expected Behavior:**\n${item.expectedBehavior || ''}\n`;
+                markdown += `\n**What's Happening:**\n${item.description || ''}\n`;
+                markdown += `\n**Error Messages:**\n${item.errorMessages ? '```\n' + item.errorMessages + '\n```' : ''}\n`;
+
+                if (item.tags && item.tags.length > 0) {
+                    markdown += `\n**Tags:** ${item.tags.join(', ')}\n`;
+                }
+
+                if (item.frequency) {
+                    markdown += `\n**Frequency:** ${item.frequency}\n`;
+                }
+
+                markdown += `\n**Screenshot (Problem):** ${item.screenshot ? `\`screenshots/screenshot-${index + 1}.jpg\`` : ''}\n`;
+                markdown += `**Screenshot (Design Ref):** ${item.designRef ? `\`screenshots/design-ref-${index + 1}.jpg\`` : ''}\n`;
+
+                markdown += '\n---\n\n';
+            });
+
+            return markdown;
+        }
+
+        function updatePreview() {
+            const preview = document.getElementById('previewMarkdown');
+            preview.textContent = generateMarkdown();
+        }
+
+        function openExportModal() {
+            if (items.length === 0) {
+                alert('Add at least one feedback item first');
+                return;
+            }
+            document.getElementById('exportModal').classList.add('open');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('open');
+        }
+
+        function copyMarkdown() {
+            const markdown = generateMarkdown();
+            navigator.clipboard.writeText(markdown).then(() => {
+                showSuccessMessage('Markdown copied to clipboard!');
+            });
+        }
+
+        function copyAndCloseExport() {
+            copyMarkdown();
+            closeExportModal();
+        }
+
+        async function downloadZip() {
+            const zip = new JSZip();
+
+            // Add markdown file
+            zip.file('feedback.md', generateMarkdown());
+
+            // Add screenshots
+            const screenshotsFolder = zip.folder('screenshots');
+            let screenshotCount = 1;
+            for (const item of items) {
+                if (item.screenshot) {
+                    const base64Data = item.screenshot.split(',')[1];
+                    screenshotsFolder.file(`screenshot-${screenshotCount}.jpg`, base64Data, { binary: true });
+                }
+                if (item.designRef) {
+                    const base64Data = item.designRef.split(',')[1];
+                    screenshotsFolder.file(`design-ref-${screenshotCount}.jpg`, base64Data, { binary: true });
+                }
+                if (item.screenshot || item.designRef) {
+                    screenshotCount++;
+                }
+            }
+
+            // Generate and download zip
+            zip.generateAsync({ type: 'blob' }).then((content) => {
+                const url = URL.createObjectURL(content);
+                const element = document.createElement('a');
+                element.setAttribute('href', url);
+                element.setAttribute('download', 'claude-feedback.zip');
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+                showSuccessMessage('Downloaded claude-feedback.zip');
+            });
+        }
+
+        function downloadZipAndClose() {
+            downloadZip();
+            closeExportModal();
+        }
+
+        function showSuccessMessage(msg) {
+            const container = document.getElementById('successMessage');
+            container.innerHTML = `<div class="success-message">${msg}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function expandScreenshot(screenshotData) {
+            const modal = document.getElementById('expandedScreenshotModal');
+            const img = document.getElementById('expandedScreenshotImage');
+            img.src = screenshotData;
+            modal.classList.add('open');
+        }
+
+        function closeExpandedScreenshot() {
+            const modal = document.getElementById('expandedScreenshotModal');
+            modal.classList.remove('open');
+        }
+
+        function deleteScreenshot(id, type = 'main') {
+            const item = items.find(i => i.id === id);
+            if (item) {
+                const message = type === 'design' ? 'Delete design reference?' : 'Delete screenshot?';
+                if (confirm(message)) {
+                    if (type === 'design') {
+                        item.designRef = null;
+                    } else {
+                        item.screenshot = null;
+                    }
+                    saveToStorage();
+                    renderItems();
+                    updatePreview();
+                }
+            }
+        }
+
+        function deleteFormScreenshot() {
+            if (confirm('Delete this screenshot?')) {
+                currentScreenshot = null;
+                document.getElementById('screenshotInput').value = '';
+                document.getElementById('screenshotPreview').innerHTML = '';
+            }
+        }
+
+        function deleteEditScreenshot() {
+            if (confirm('Delete this screenshot?')) {
+                editScreenshot = null;
+                document.getElementById('editScreenshotInput').value = '';
+                document.getElementById('editScreenshotPreview').innerHTML = '';
+            }
+        }
+
+        function deleteFormDesignRef() {
+            if (confirm('Delete design reference?')) {
+                currentDesignRef = null;
+                document.getElementById('designRefInput').value = '';
+                document.getElementById('designRefPreview').innerHTML = '';
+            }
+        }
+
+        function generateSingleIssueMarkdown(item, itemIndex) {
+            let markdown = `## Issue\n\n`;
+
+            markdown += `**File:** ${item.fileLocation || ''}\n`;
+            markdown += `**URL:** ${item.url || ''}\n`;
+            markdown += `**Severity:** ${item.severity}\n`;
+
+            if (item.tags && item.tags.length > 0) {
+                markdown += `**Tags:** ${item.tags.join(', ')}\n`;
+            }
+
+            markdown += `\n**Steps to Reproduce:**\n${item.stepsToReproduce || ''}\n`;
+            markdown += `\n**Expected Behavior:**\n${item.expectedBehavior || ''}\n`;
+            markdown += `\n**What's Happening:**\n${item.description || ''}\n`;
+            markdown += `\n**Error Messages:**\n${item.errorMessages ? '```\n' + item.errorMessages + '\n```' : ''}\n`;
+            markdown += `\n**Frequency:** ${item.frequency || 'Not specified'}\n`;
+            markdown += `\n**Screenshot (Problem):** ${item.screenshot ? `[screenshot]` : ''}\n`;
+            markdown += `**Screenshot (Design Ref):** ${item.designRef ? `[design reference]` : ''}\n`;
+
+            return markdown;
+        }
+
+        function copySingleIssue(id) {
+            const item = items.find(i => i.id === id);
+            if (item) {
+                const markdown = generateSingleIssueMarkdown(item, items.indexOf(item));
+                navigator.clipboard.writeText(markdown).then(() => {
+                    showSuccessMessage('Issue copied to clipboard!');
+                });
+            }
+        }
+
+        function applyTemplate(templateName) {
+            const template = TEMPLATES[templateName];
+            document.getElementById('description').value = template.description;
+            document.getElementById('severity').value = template.severity;
+            document.getElementById('frequency').value = template.frequency;
+
+            // Set tags
+            document.querySelectorAll('input[name="tag"]').forEach(el => {
+                el.checked = template.tags.includes(el.value);
+            });
+
+            document.getElementById('description').focus();
+            showSuccessMessage(`Template "${templateName}" applied!`);
+        }
+
+        function undoDelete() {
+            if (undoStack.length > 0) {
+                const restoredItem = undoStack.pop();
+                items.push(restoredItem);
+                saveToStorage();
+                renderItems();
+                updatePreview();
+                updateUndoButton();
+                showSuccessMessage('Item restored!');
+            }
+        }
+
+        function updateUndoButton() {
+            const undoContainer = document.getElementById('undoContainer');
+            if (undoStack.length > 0) {
+                undoContainer.style.display = 'block';
+            } else {
+                undoContainer.style.display = 'none';
+            }
+        }
+
+        function deleteEditDesignRef() {
+            if (confirm('Delete design reference?')) {
+                editDesignRef = null;
+                document.getElementById('editDesignRefInput').value = '';
+                document.getElementById('editDesignRefPreview').innerHTML = '';
+            }
+        }
+
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+
+        document.getElementById('exportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExportModal();
+            }
+        });
+
+        document.getElementById('expandedScreenshotModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExpandedScreenshot();
+            }
+        });
+
+        // Close expanded screenshot with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('expandedScreenshotModal');
+                if (modal.classList.contains('open')) {
+                    closeExpandedScreenshot();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
