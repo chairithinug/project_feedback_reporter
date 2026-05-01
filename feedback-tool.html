@@ -1233,6 +1233,16 @@
         // Data storage
         let items = [];
         let undoStack = [];
+        // Cap on undo history. Each entry stores the full deleted item including
+        // base64 screenshots, so an unbounded stack can pile up tens of MB after
+        // repeated delete/undo cycles. 20 is enough for normal recovery.
+        const UNDO_STACK_LIMIT = 20;
+        function pushUndo(entry) {
+            undoStack.push(entry);
+            while (undoStack.length > UNDO_STACK_LIMIT) {
+                undoStack.shift();
+            }
+        }
         let currentScreenshot = null;
         let currentDesignRef = null;
         let editScreenshot = null;
@@ -1343,7 +1353,21 @@
                 event.preventDefault();
                 addItem();
             } else if (event.key === 'Escape') {
-                clearForm();
+                // Only clear silently if the form is essentially empty.
+                // Otherwise, prompt — Escape used to wipe in-progress drafts
+                // (including the autosaved copy), which was easy to trigger by accident.
+                const desc = (formFields.description && formFields.description.value || '').trim();
+                const hasScreenshot = !!currentScreenshot || !!currentDesignRef;
+                if (!desc && !hasScreenshot) {
+                    clearForm();
+                } else {
+                    showConfirm(
+                        'Discard the current draft? This cannot be undone.',
+                        'Discard Draft?',
+                        'Discard',
+                        () => { clearForm(); }
+                    );
+                }
             }
         }
 
@@ -1387,15 +1411,66 @@
         }
 
         // ========== STORAGE MANAGEMENT ==========
-        /** Persist items to browser localStorage */
+        // Track whether the user has already been warned about quota in this session
+        // so we don't spam the modal on every keystroke after a failed save.
+        let storageQuotaWarned = false;
+
+        /**
+         * Persist items to browser localStorage.
+         * Catches QuotaExceededError (typically ~5MB on most browsers) and prompts
+         * the user to export their data before any further edits silently disappear.
+         */
         function saveToStorage() {
-            localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(items));
+            try {
+                localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(items));
+                storageQuotaWarned = false;
+            } catch (err) {
+                const isQuota = err && (
+                    err.name === 'QuotaExceededError' ||
+                    err.code === 22 || err.code === 1014 ||
+                    /quota/i.test(err.message || '')
+                );
+                if (isQuota) {
+                    if (!storageQuotaWarned) {
+                        storageQuotaWarned = true;
+                        showConfirm(
+                            'Browser storage is full (typically ~5MB). Your latest changes are in memory but were NOT saved to disk. Export your data now as a zip — otherwise it will be lost on reload.',
+                            'Storage Full',
+                            'Export Now',
+                            () => { downloadZip(); }
+                        );
+                    }
+                    console.warn('[saveToStorage] QuotaExceededError — items kept in memory only.', err);
+                } else {
+                    console.error('[saveToStorage] unexpected error:', err);
+                }
+            }
         }
 
-        /** Load items from browser localStorage */
+        /**
+         * Load items from browser localStorage.
+         * If parsing fails (corrupt JSON, partial write from a quota event, manual edit,
+         * or a stale format from an older app version) we back up the raw bytes to a
+         * dated key so the user can recover them later, then start the session empty
+         * rather than bricking the page on a script-halting throw.
+         */
         function loadFromStorage() {
             const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
-            return saved ? JSON.parse(saved) : [];
+            if (!saved) return [];
+            try {
+                const parsed = JSON.parse(saved);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (err) {
+                console.error('[loadFromStorage] corrupt JSON — backing up and starting fresh.', err);
+                try {
+                    localStorage.setItem(`feedbackItems_corrupt_${Date.now()}`, saved);
+                } catch (_) { /* if even this fails, nothing we can do */ }
+                // Surface a notice once the DOM is ready (this runs inside window.load already).
+                setTimeout(() => {
+                    showSuccessMessage('Recovered from corrupt storage — backup saved to localStorage.');
+                }, 0);
+                return [];
+            }
         }
 
         // ========== MODAL MANAGEMENT ==========
@@ -1740,7 +1815,7 @@
                     'Delete Feedback Item?',
                     'Delete',
                     () => {
-                        undoStack.push(item);
+                        pushUndo(item);
                         updateUndoButton();
                         items = items.filter(i => i.id !== id);
                         saveToStorage();
@@ -2072,6 +2147,26 @@
 
         // ========== EXPORT & UTILITIES ==========
         /**
+         * Pick a fence string of backticks longer than the longest backtick run
+         * inside `text`, so a fenced code block can safely contain it.
+         * Returns a string of backticks, minimum 3.
+         * @param {string} text - The content that will go inside the fence.
+         * @returns {string} A fence string of >=3 backticks.
+         */
+        function pickCodeFence(text) {
+            if (!text) return '```';
+            let longest = 0;
+            const matches = text.match(/`+/g);
+            if (matches) {
+                for (const m of matches) {
+                    if (m.length > longest) longest = m.length;
+                }
+            }
+            const len = Math.max(3, longest + 1);
+            return '`'.repeat(len);
+        }
+
+        /**
          * Get current timestamp in ISO 8601 format
          * @returns {string} ISO timestamp string
          */
@@ -2113,7 +2208,13 @@
                 // Reproduction details — only if provided
                 if (item.stepsToReproduce)  markdown += `\n**Steps to Reproduce:**\n${item.stepsToReproduce}\n`;
                 if (item.expectedBehavior)  markdown += `\n**Expected Behavior:**\n${item.expectedBehavior}\n`;
-                if (item.errorMessages)     markdown += `\n**Error Messages:**\n\`\`\`\n${item.errorMessages}\n\`\`\`\n`;
+                if (item.errorMessages) {
+                    // CommonMark: a fenced code block must use a backtick run longer
+                    // than any backtick run inside the content. Default to ``` (3),
+                    // bump up if the user pasted backticks in their error message.
+                    const fence = pickCodeFence(item.errorMessages);
+                    markdown += `\n**Error Messages:**\n${fence}\n${item.errorMessages}\n${fence}\n`;
+                }
 
                 // Screenshots — only if attached
                 if (item.screenshot)        markdown += `\n**Screenshot (Problem):** \`screenshots/screenshot-${index + 1}.jpg\`\n`;
@@ -2474,7 +2575,7 @@
                 () => {
                     // Save all items to undo stack as a batch
                     // We'll save them as a special "batch delete" entry
-                    undoStack.push({
+                    pushUndo({
                         isBatchDelete: true,
                         items: [...items]
                     });
