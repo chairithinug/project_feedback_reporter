@@ -71,6 +71,42 @@
             border-radius: 3px;
         }
 
+        /* Mobile / narrow viewport: stack panels vertically.
+           Below ~768px the side-by-side layout squeezes both panels under
+           340px, breaking buttons, drop zones, and the items list. */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+                padding: 12px;
+                gap: 12px;
+            }
+            .left-panel,
+            .right-panel {
+                flex: none;
+                width: 100%;
+                height: auto;
+                max-height: none;
+                overflow-y: visible;
+                padding-right: 0;
+            }
+            .form-header {
+                position: static;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 8px;
+                gap: 8px;
+            }
+            .form-section,
+            .right-panel {
+                padding: 12px;
+            }
+        }
+
         .items-section-right {
             border-bottom: 1px solid #f0f0f0;
             padding-bottom: 12px;
@@ -447,6 +483,14 @@
         .item-actions {
             display: flex;
             gap: 6px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        /* Visual hint for disabled reorder buttons (top/bottom of list). */
+        .item-actions button[disabled] {
+            opacity: 0.35;
+            cursor: not-allowed;
         }
 
         .item-body {
@@ -1983,6 +2027,8 @@
                                 <span class="item-status ${statusClass}">${statusIcon}</span>
                             </span>
                             <div class="item-actions">
+                                <button class="btn-secondary" style="padding: 8px 10px; font-size: 12px;" onclick="event.stopPropagation(); moveItem(${item.id}, -1)" aria-label="Move issue ${index + 1} up" title="Move up" ${index === 0 ? 'disabled' : ''}>↑</button>
+                                <button class="btn-secondary" style="padding: 8px 10px; font-size: 12px;" onclick="event.stopPropagation(); moveItem(${item.id}, 1)" aria-label="Move issue ${index + 1} down" title="Move down" ${index === displayItems.length - 1 ? 'disabled' : ''}>↓</button>
                                 <button class="btn-secondary" style="padding: 8px 12px; font-size: 12px;" onclick="event.stopPropagation(); copySingleIssue(${item.id})" aria-label="Copy issue ${index + 1}">Copy</button>
                                 <button class="btn-secondary" style="padding: 8px 12px; font-size: 12px;" onclick="event.stopPropagation(); openEditModal(${item.id})" aria-label="Edit issue ${index + 1}">Edit</button>
                                 <button class="btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="event.stopPropagation(); deleteItem(${item.id})" aria-label="Delete issue ${index + 1}">✕</button>
@@ -2121,6 +2167,32 @@
          */
         function handleDragLeave(e) {
             this.classList.remove('drag-over');
+        }
+
+        /**
+         * Move an item up or down by swapping with its visually-adjacent neighbor.
+         * Touch-friendly fallback for HTML5 drag-and-drop, which doesn't fire on
+         * mobile. We resolve the neighbor via DOM sibling lookup (not array index)
+         * so the move respects the currently-rendered order — matching drag-drop
+         * behavior under an active search/filter.
+         * @param {number} id - The item ID to move.
+         * @param {number} direction - -1 for up, +1 for down.
+         */
+        function moveItem(id, direction) {
+            const card = document.getElementById(`item-${id}`);
+            if (!card) return;
+            const sibling = direction < 0
+                ? card.previousElementSibling
+                : card.nextElementSibling;
+            if (!sibling || !sibling.id || !sibling.id.startsWith('item-')) return;
+            const neighborId = parseInt(sibling.id.replace('item-', ''), 10);
+            const aIdx = items.findIndex(i => i.id === id);
+            const bIdx = items.findIndex(i => i.id === neighborId);
+            if (aIdx < 0 || bIdx < 0) return;
+            [items[aIdx], items[bIdx]] = [items[bIdx], items[aIdx]];
+            saveToStorage();
+            renderItems();
+            debouncePreviewUpdate();
         }
 
         /**
