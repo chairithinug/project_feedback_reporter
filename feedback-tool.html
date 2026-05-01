@@ -37,7 +37,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            overflow-y: scroll;
+            overflow-y: auto;
             padding-right: 8px;
         }
 
@@ -149,16 +149,15 @@
             transform: rotate(180deg);
         }
 
+        /* Snap open/closed (no max-height animation) to match
+           .expandable-content. The chevron icon still rotates. */
         .items-content {
             max-height: 500px;
             overflow-y: auto;
-            transition: max-height 0.15s ease-out;
         }
 
         .items-content.collapsed {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.15s ease-in;
+            display: none;
         }
 
         #itemsList {
@@ -493,19 +492,16 @@
             cursor: not-allowed;
         }
 
+        /* Snap open/closed (no max-height animation) to match
+           .items-content and .expandable-content. Avoids clipping
+           when an item has long error messages + screenshots that
+           exceed the previous 1000px cap. */
         .item-body {
             padding: 12px;
-            max-height: 1000px;
-            overflow: hidden;
-            transition: max-height 0.15s ease-out, padding 0.15s ease-out, opacity 0.15s ease-out;
-            opacity: 1;
         }
 
         .item-body.collapsed {
-            max-height: 0;
-            padding: 0;
-            transition: max-height 0.15s ease-in, padding 0.15s ease-in, opacity 0.15s ease-in;
-            opacity: 0;
+            display: none;
         }
 
         .item-summary {
@@ -1537,10 +1533,24 @@
          * @param {string} buttonLabel - Confirm button label (default: "Delete")
          * @param {Function} callback - Called if user clicks confirm
          */
-        function showConfirm(message, title = 'Confirm', buttonLabel = 'Delete', callback = null) {
+        function showConfirm(message, title = 'Confirm', buttonLabel = 'Delete', callback = null, isDestructive = null) {
             document.getElementById('confirmTitle').textContent = title;
             document.getElementById('confirmMessage').textContent = message;
-            document.getElementById('confirmButton').textContent = buttonLabel;
+            const btn = document.getElementById('confirmButton');
+            btn.textContent = buttonLabel;
+            // Style the button based on whether the action is destructive.
+            // If the caller didn't specify, infer from the label: anything starting
+            // with "Delete" or "Discard" is destructive (red); everything else
+            // (Export, Save, OK, Continue, etc.) gets the neutral primary blue.
+            const destructive = (isDestructive === null)
+                ? /^(delete|discard)/i.test(buttonLabel)
+                : !!isDestructive;
+            if (destructive) {
+                btn.style.background = '#dc3545';
+            } else {
+                btn.style.background = '#0066cc';
+            }
+            btn.style.color = 'white';
             confirmCallback = callback;
             setModalState('confirmModal', true);
         }
