@@ -1,7 +1,7 @@
 # Claude Code Feedback Tool
 A single-file, offline-capable feedback collection system for structured bug reports and feature requests.
 
-**[Quick Ref: Phases](QUICK_REF_PHASES.md)** | **[Quick Ref: Design](QUICK_REF_DESIGN.md)** | **[Quick Ref: Audits](QUICK_REF_AUDITS.md)**
+**[Quick Ref: Phases](docs/QUICK_REF_PHASES.md)** | **[Quick Ref: Design](docs/QUICK_REF_DESIGN.md)** | **[Quick Ref: Audits](docs/QUICK_REF_AUDITS.md)**
 
 ---
 
@@ -69,26 +69,26 @@ Press **? Help** in the app to view all shortcuts.
 ## Documentation
 
 **Start here (Quick Refs):**
-- [Implementation Phases (1-pager)](QUICK_REF_PHASES.md) — What was optimized & metrics
-- [Design System (1-pager)](QUICK_REF_DESIGN.md) — Visual guidelines & system
-- [Audits & Status (1-pager)](QUICK_REF_AUDITS.md) — Issues resolved, compliance status
+- [Implementation Phases (1-pager)](docs/QUICK_REF_PHASES.md) — What was optimized & metrics
+- [Design System (1-pager)](docs/QUICK_REF_DESIGN.md) — Visual guidelines & system
+- [Audits & Status (1-pager)](docs/QUICK_REF_AUDITS.md) — Issues resolved, compliance status
 
 **For deeper dives (50-100 lines):**
-- [Implementation Summary](IMPLEMENTATION_SUMMARY.md) — Phase details, performance gains
-- [Design Summary](DESIGN_SUMMARY.md) — Design decisions, system rules
-- [Audits Summary](AUDITS_SUMMARY.md) — Issues found/fixed, production checklist
+- [Implementation Summary](docs/IMPLEMENTATION_SUMMARY.md) — Phase details, performance gains
+- [Design Summary](docs/DESIGN_SUMMARY.md) — Design decisions, system rules
+- [Audits Summary](docs/AUDITS_SUMMARY.md) — Issues found/fixed, production checklist
 
 **Original detailed docs:**
-- [IMPLEMENTATION_PHASES.md](IMPLEMENTATION_PHASES.md) — Complete optimization journey
-- [DESIGN_AND_STANDARDS.md](DESIGN_AND_STANDARDS.md) — Full design audit
-- [AUDITS_AND_ANALYSIS.md](AUDITS_AND_ANALYSIS.md) — Comprehensive issue analysis
-- [FEATURES.md](FEATURES.md) — Feature-by-feature breakdown
+- [IMPLEMENTATION_PHASES.md](docs/IMPLEMENTATION_PHASES.md) — Complete optimization journey
+- [DESIGN_AND_STANDARDS.md](docs/DESIGN_AND_STANDARDS.md) — Full design audit
+- [AUDITS_AND_ANALYSIS.md](docs/AUDITS_AND_ANALYSIS.md) — Comprehensive issue analysis
+- [FEATURES.md](docs/FEATURES.md) — Feature-by-feature breakdown
 
 **Project context:**
-- [context.md](context.md) — Background & setup
-- [decisions.md](decisions.md) — Design & tech decisions
-- [instructions.md](instructions.md) — How to use this project
-- [open-questions.md](open-questions.md) — Unresolved questions
+- [context.md](project/context.md) — Background & setup
+- [decisions.md](project/decisions.md) — Design & tech decisions
+- [instructions.md](project/instructions.md) — How to use this project
+- [open-questions.md](project/open-questions.md) — Unresolved questions
 
 ---
 
@@ -96,22 +96,27 @@ Press **? Help** in the app to view all shortcuts.
 
 ```
 incident_reporter/
-├── feedback-tool.html           # Main application (open this!)
-├── README.md                    # This file
+├── feedback-tool.html              # Main application (open this!)
+├── README.md                       # This file
+├── .gitignore                      # Git ignore patterns
 │
-├── QUICK_REF_*.md              # One-page quick scans
-├── *_SUMMARY.md                # 50-100 line overviews
-├── IMPLEMENTATION_PHASES.md    # Full optimization details
-├── DESIGN_AND_STANDARDS.md     # Complete design system
-├── AUDITS_AND_ANALYSIS.md      # Full audit findings
-├── FEATURES.md                 # Feature documentation
+├── docs/                           # Documentation
+│   ├── QUICK_REF_PHASES.md        # 1-pager: optimization & metrics
+│   ├── QUICK_REF_DESIGN.md        # 1-pager: visual system
+│   ├── QUICK_REF_AUDITS.md        # 1-pager: issues & status
+│   ├── IMPLEMENTATION_SUMMARY.md  # 50-100 line: phases
+│   ├── DESIGN_SUMMARY.md          # 50-100 line: design
+│   ├── AUDITS_SUMMARY.md          # 50-100 line: audits
+│   ├── IMPLEMENTATION_PHASES.md   # Full: optimization journey
+│   ├── DESIGN_AND_STANDARDS.md    # Full: design audit
+│   ├── AUDITS_AND_ANALYSIS.md     # Full: issue analysis
+│   └── FEATURES.md                # Full: features breakdown
 │
-├── context.md                  # Project background
-├── decisions.md                # Design & tech decisions
-├── instructions.md             # Setup & usage
-├── open-questions.md           # Open issues
-│
-└── .gitignore                  # Git ignore patterns
+└── project/                        # Project context
+    ├── context.md                 # Background & setup
+    ├── decisions.md               # Design & tech decisions
+    ├── instructions.md            # How to use this project
+    └── open-questions.md          # Unresolved questions
 ```
 
 ---
